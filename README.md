@@ -92,6 +92,7 @@ const effect = createParticleEffect(element, options);
 | `flyoutChance` | Number | 0.01 | Шанс вылета частицы (0-1) |
 | `flyoutParticles` | Number | 0.15 | Доля частиц для вылета (0-1) |
 | `returnChance` | Number | 0.03 | Шанс возврата частицы (0-1) |
+| `hideOriginalText` | Boolean | true | Скрыть исходный текст |
 
 ## API
 

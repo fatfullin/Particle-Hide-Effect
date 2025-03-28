@@ -39,6 +39,7 @@
  * @property {number} [flyoutParticles=0.15] - Процент частиц, которые могут вылетать
  * @property {number} [returnChance=0.03] - Шанс возврата частицы в центральную зону
  * @property {number} [edgeMarginPixels=0] - Размер края в пикселях для затухания/уменьшения
+ * @property {boolean} [hideOriginalText=true] - Скрыть исходный текст при применении эффекта
  */
 
 /**
@@ -459,13 +460,28 @@ export function createParticleEffect(targetElement, options = {}) {
     flyoutChance: options.flyoutChance || 0.01,
     flyoutParticles: options.flyoutParticles || 0.15,
     returnChance: options.returnChance || 0.03,
-    edgeMarginPixels: options.edgeMarginPixels || 0
+    edgeMarginPixels: options.edgeMarginPixels || 0,
+    hideOriginalText: options.hideOriginalText !== undefined ? options.hideOriginalText : true
   };
   
   // Получаем точные размеры текста
   const rect = targetElement.getBoundingClientRect();
   const textWidth = rect.width;
   const textHeight = rect.height;
+  
+  // Сохраняем оригинальные стили для восстановления
+  const originalStyles = {
+    color: targetElement.style.color,
+    textShadow: targetElement.style.textShadow
+  };
+  
+  // Если нужно скрыть исходный текст
+  if (settings.hideOriginalText) {
+    // Делаем текст прозрачным, но сохраняем его размеры и положение
+    targetElement.style.color = 'transparent';
+    // Убираем тени текста, если они есть
+    targetElement.style.textShadow = 'none';
+  }
   
   // Создаем контейнер для canvas и размещаем его внутри целевого элемента
   const container = document.createElement('div');
@@ -519,9 +535,16 @@ export function createParticleEffect(targetElement, options = {}) {
   
   // Устанавливаем размер холста с учетом pixel ratio
   function resizeCanvas() {
+    // Пересчитываем размеры на случай, если они изменились
     const rect = targetElement.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
+    
+    // Обновляем размеры контейнера
+    container.style.width = `${width}px`;
+    container.style.height = `${height}px`;
+    debugZone.style.width = `${width}px`;
+    debugZone.style.height = `${height}px`;
     
     // Устанавливаем размер холста с учетом pixel ratio
     canvas.width = width * pixelRatio;
@@ -596,6 +619,13 @@ export function createParticleEffect(targetElement, options = {}) {
     destroy: function() {
       window.removeEventListener('resize', resizeCanvas);
       targetElement.removeChild(container);
+      
+      // Восстанавливаем оригинальные стили
+      if (settings.hideOriginalText) {
+        targetElement.style.color = originalStyles.color;
+        targetElement.style.textShadow = originalStyles.textShadow;
+      }
+      
       if (originalPosition === 'static') {
         targetElement.style.position = originalPosition;
       }
@@ -612,6 +642,18 @@ export function createParticleEffect(targetElement, options = {}) {
         container.style.borderRadius = `${settings.borderRadius}px`;
         debugZone.style.borderRadius = `${settings.borderRadius}px`;
       }
+      
+      // Обновляем видимость текста, если этот параметр был изменен
+      if (newOptions.hideOriginalText !== undefined) {
+        if (newOptions.hideOriginalText) {
+          targetElement.style.color = 'transparent';
+          targetElement.style.textShadow = 'none';
+        } else {
+          targetElement.style.color = originalStyles.color;
+          targetElement.style.textShadow = originalStyles.textShadow;
+        }
+      }
+      
       // Обновляем отладочную зону при изменении edgeMarginPixels
       if (newOptions.edgeMarginPixels !== undefined && newOptions.shrinkEdges) {
         // Удаляем существующие элементы

@@ -29,7 +29,8 @@ const DEFAULT_PARTICLE_OPTIONS = {
   centerZoneSize: 0.6,
   flyoutChance: 0.05,
   flyoutParticles: 0.3,
-  returnChance: 0.01
+  returnChance: 0.01,
+  hideOriginalText: true
 };
 
 /**
