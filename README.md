@@ -2,7 +2,7 @@
 
 Современная библиотека для создания эффекта частиц на веб-странице. Позволяет добавлять анимированные частицы к любому DOM-элементу с гибкими настройками.
 
-**[Демо](https://fatfullin.github.io/Particle-Hide-Effect/)** | **[Пример использования](https://fatfullin.github.io/Particle-Hide-Effect/examples/basic.html)**
+**[Демо](https://fatfullin.github.io/Particle-Hide-Effect/)**
 
 ## Возможности
 
