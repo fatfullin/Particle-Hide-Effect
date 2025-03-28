@@ -16,8 +16,8 @@
 
 ```bash
 # Клонирование репозитория
-git clone https://github.com/yourusername/particle-effect.git
-cd particle-effect
+git clone https://github.com/fatfullin/Particle-Hide-Effect.git
+cd Particle-Hide-Effect
 
 # Установка зависимостей
 npm install

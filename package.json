@@ -14,17 +14,17 @@
     "animation",
     "effect"
   ],
-  "author": "Your Name",
+  "author": "fatfullin",
   "license": "MIT",
   "devDependencies": {
     "vite": "^4.3.9"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yourusername/particle-effect.git"
+    "url": "git+https://github.com/fatfullin/Particle-Hide-Effect.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/particle-effect/issues"
+    "url": "https://github.com/fatfullin/Particle-Hide-Effect/issues"
   },
-  "homepage": "https://github.com/yourusername/particle-effect#readme"
+  "homepage": "https://github.com/fatfullin/Particle-Hide-Effect#readme"
 } 
