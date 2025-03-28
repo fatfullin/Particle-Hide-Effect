@@ -9,14 +9,16 @@ import { resolve } from 'path';
 export default defineConfig({
   root: '.',
   publicDir: 'public',
+  base: '/Particle-Hide-Effect/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: true,
-    lib: {
-      entry: resolve(__dirname, 'src/js/particle.js'),
-      name: 'ParticleEffect',
-      fileName: (format) => `particle-effect.${format}.js`
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        example: resolve(__dirname, 'examples/basic.html')
+      }
     }
   },
   server: {
