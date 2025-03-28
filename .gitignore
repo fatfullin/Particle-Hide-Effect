@@ -32,4 +32,16 @@ pnpm-debug.log*
 # Временные файлы
 .cache/
 .temp/
-.tmp/ 
+.tmp/
+
+# Нежелательные папки
+backup/
+untitled folder/
+untitled folder 2/
+untitled folder 3/
+untitled folder 4/
+untitled folder 5/
+untitled folder 6/
+untitled folder 7/
+untitled folder 8/
+untitled folder 9/ 
