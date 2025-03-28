@@ -69,6 +69,8 @@
             margin-top: 15px;
         }
     </style>
+  <script type="module" crossorigin src="/Particle-Hide-Effect/assets/example-8183d1eb.js"></script>
+  <link rel="modulepreload" crossorigin href="/Particle-Hide-Effect/assets/particle-617463e8.js">
 </head>
 <body>
     <div class="container">
@@ -84,50 +86,6 @@
         </div>
     </div>
     
-    <script type="module">
-        import { createParticleEffect } from '../src/js/particle.js';
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            const targetElement = document.getElementById('target1');
-            const applyBtn = document.getElementById('apply-btn');
-            const removeBtn = document.getElementById('remove-btn');
-            
-            let effect = null;
-            
-            // Настройки для эффекта частиц
-            const options = {
-                particleCount: 1050,
-                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                particleColor: 'rgba(0, 0, 0, 0.7)',
-                particleSize: { min: 0.36, max: 1.2 },
-                speed: { min: 0.05, max: 0.15 },
-                shrinkEdges: true,
-                edgeMarginPixels: 10,
-                useRetina: true,
-                animateOpacity: true,
-                useLifespan: true,
-                lifespanMin: 500,
-                lifespanMax: 1000,
-                fadeTime: 300
-            };
-            
-            // Применение эффекта
-            applyBtn.addEventListener('click', () => {
-                if (!effect) {
-                    effect = createParticleEffect(targetElement, options);
-                    console.log('Эффект частиц применен');
-                }
-            });
-            
-            // Удаление эффекта
-            removeBtn.addEventListener('click', () => {
-                if (effect) {
-                    effect.destroy();
-                    effect = null;
-                    console.log('Эффект частиц удален');
-                }
-            });
-        });
-    </script>
+    
 </body>
 </html> 
