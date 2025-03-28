@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Эффект частиц для элементов</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        
+        h1, h2 {
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .demo-block {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            min-height: 100px;
+        }
+        
+        .controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+        }
+        
+        button {
+            padding: 5px 10px;
+            margin-left: 5px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        
+        button.remove {
+            background-color: #f44336;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* Стили для заголовка, к которому применяется эффект */
+        .title-with-effect {
+            position: relative;
+      
+            cursor: pointer;
+            display: inline-block;
+            
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Применение эффекта частиц к тексту</h1>
+        
+        
+        <div class="demo-block" id="block1">
+            <div class="controls">
+                <button class="apply">Применить эффект</button>
+                <button class="remove hidden">Удалить эффект</button>
+            </div>
+            <h2 class="title-with-effect" id="target-title">Заголовок блока 1</h2>
+            
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Получаем элементы
+            const titleElement = document.getElementById('target-title');
+            const applyBtn = document.querySelector('.apply');
+            const removeBtn = document.querySelector('.remove');
+            
+            // Обработчик для кнопки применения эффекта
+            applyBtn.addEventListener('click', function() {
+                if (!titleElement.hasAttribute('data-has-effect')) {
+                    applyEffect(titleElement);
+                }
+            });
+            
+            // Обработчик для кнопки удаления эффекта
+            removeBtn.addEventListener('click', function() {
+                removeEffect(titleElement);
+            });
+            
+            // Функция для применения эффекта
+            function applyEffect(element) {
+                // Если у элемента уже есть эффект, не добавляем новый
+                if (element.hasAttribute('data-has-effect')) return;
+                
+                // Настройки для эффекта частиц
+                const options = {
+                    particleCount: 1050, // Уменьшено на 50% (с 2100 до 1050)
+                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                    particleColor: 'rgba(0, 0, 0, 0.7)',
+                    particleSize: { min: 0.36, max: 1.2 }, // Увеличено на 20% (было min: 0.3, max: 1)
+                    speed: { min: 0.05, max: 0.15 }, // Базовая скорость (будет увеличена на 30% в скрипте)
+                    fadeEdges: false, // Отключаем затухание
+                    shrinkEdges: true, // Включаем уменьшение размера
+                    edgeMarginPixels: 10, // Фиксированный отступ 10px одинаковый со всех сторон (уменьшен в 2 раза)
+                    useRetina: true, // Поддержка Retina дисплеев
+                    borderRadius: 0, // Убираем скругление углов canvas (было 24px)
+                    animateOpacity: true, // Включаем анимацию прозрачности частиц
+                    useLifespan: true, // Включаем систему времени жизни
+                    lifespanMin: 500, // Минимальное время жизни: 0.5 секунды (500 мс)
+                    lifespanMax: 1000, // Максимальное время жизни: 1 секунда (1000 мс)
+                    fadeTime: 300, // Время затухания/появления: 0.3 секунды
+                    useZones: false, // Отключаем систему зон для равномерного распределения частиц
+                    centerZoneSize: 0.6, // Уменьшаем центральную зону до 60% размера элемента (было 0.7)
+                    flyoutChance: 0.05, // Увеличиваем шанс вылета частицы (было 0.02, стало 0.05)
+                    flyoutParticles: 0.3, // Увеличиваем долю частиц, которые могут вылетать (было 0.15, стало 0.3)
+                    returnChance: 0.01 // Уменьшаем шанс возврата частицы в центральную зону (было 0.03, стало 0.01)
+                };
+                
+                // Применяем эффект
+                const effect = createParticleEffect(element, options);
+                
+                // Сохраняем ссылку на эффект
+                element.setAttribute('data-has-effect', 'true');
+                element.particleEffect = effect;
+                
+                // Показываем кнопку удаления
+                applyBtn.classList.add('hidden');
+                removeBtn.classList.remove('hidden');
+            }
+            
+            // Функция для удаления эффекта
+            function removeEffect(element) {
+                if (element.particleEffect) {
+                    element.particleEffect.destroy();
+                    element.particleEffect = null;
+                    element.removeAttribute('data-has-effect');
+                    
+                    // Меняем видимость кнопок
+                    applyBtn.classList.remove('hidden');
+                    removeBtn.classList.add('hidden');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

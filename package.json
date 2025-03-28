@@ -1,0 +1,30 @@
+{
+  "name": "particle-effect",
+  "version": "1.0.0",
+  "description": "Эффект частиц для веб-элементов",
+  "main": "src/js/particle.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "particles",
+    "canvas",
+    "animation",
+    "effect"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^4.3.9"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/particle-effect.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/particle-effect/issues"
+  },
+  "homepage": "https://github.com/yourusername/particle-effect#readme"
+} 
