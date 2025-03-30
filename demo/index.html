@@ -21,6 +21,15 @@
             color: #666;
         }
     </style>
+    
+    <!-- Подключение библиотеки как будто через CDN (но на самом деле из локального пути) -->
+    <script type="module">
+        // В реальном использовании импорт был бы таким:
+        // import ParticleEffect from 'https://cdn.jsdelivr.net/npm/fatfullin-particle-hide-effect@latest/dist/particle-effect.es.js';
+        // Но для демо используем локальный путь:
+        import ParticleEffect from '../dist/particle-effect.es.js';
+        window.ParticleEffect = ParticleEffect;
+    </script>
 </head>
 <body>
 
@@ -178,7 +187,11 @@
         <button id="copy-config-button">Скопировать конфиг</button>
         <p id="copy-status" style="display: none; color: green; margin-left: 10px;">Скопировано!</p>
         <h3>Пример использования:</h3>
-        <pre><code>import ParticleEffect from 'fatfullin-particle-hide-effect'; // Импорт библиотеки
+        <pre><code>// Вариант 1: Установка через npm
+import ParticleEffect from 'fatfullin-particle-hide-effect'; 
+
+// Вариант 2: Подключение через CDN
+// &lt;script src="https://cdn.jsdelivr.net/npm/fatfullin-particle-hide-effect@latest/dist/particle-effect.umd.js"&gt;&lt;/script&gt;
 
 const element = document.getElementById('your-element-id');
 const config = /* Вставьте скопированный конфиг сюда */ ;
@@ -196,6 +209,6 @@ const effect = new ParticleEffect(element, config);
 </div>
 <!-- Конец новых контейнеров -->
 
-<script type="module" src="main.js"></script>
+<script src="main.js"></script>
 </body>
 </html>

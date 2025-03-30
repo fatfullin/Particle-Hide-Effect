@@ -1,4 +1,5 @@
-import ParticleEffect from '../dist/particle-effect.es.js';
+// Используем глобальный объект ParticleEffect, как будто библиотека загружена через CDN
+// В предыдущей версии был import ParticleEffect from '../dist/particle-effect.es.js';
 
 // --- DOM Элементы ---
 const controlsContainer = document.getElementById('controls-container');
