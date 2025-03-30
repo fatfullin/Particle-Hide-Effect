@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Particle Hide Effect Demo</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- GitHub Repository Link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .github-link {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            color: #333;
+            font-size: 2rem;
+            z-index: 1000;
+        }
+        .github-link:hover {
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+<!-- GitHub Link -->
+<a href="https://github.com/fatfullin/Particle-Hide-Effect" target="_blank" class="github-link" title="View on GitHub">
+    <i class="fab fa-github"></i>
+</a>
+
+<!-- Добавляемый HTML -->
+<div id="controls-container">
+    <h3>Настройки частиц</h3>
+
+    <div>
+        <label for="particleDensity">Плотность, шт/10K px²</label>
+        <span class="control-pair">
+            <input type="range" id="particleDensity" min="10" max="500" step="10" value="150">
+            <input type="number" class="value-input" id="particleDensityValue" step="10" min="10" max="500">
+        </span>
+    </div>
+
+    <div>
+        <label for="minParticleSize">Размер мин.</label>
+        <span class="control-pair">
+            <input type="range" id="minParticleSize" min="0.1" max="10" step="0.1" value="0.5">
+            <input type="number" class="value-input" id="minParticleSizeValue" step="0.1" min="0.1" max="10">
+        </span>
+    </div>
+
+    <div>
+        <label for="particleSize">Размер макс.</label>
+        <span class="control-pair">
+            <input type="range" id="particleSize" min="0.1" max="10" step="0.1" value="1.2">
+            <input type="number" class="value-input" id="particleSizeValue" step="0.1" min="0.1" max="10">
+        </span>
+    </div>
+
+    <div>
+        <label>Время жизни, сек</label>
+        <div class="range-group">
+            <label for="minLifetime" class="sub-label">Мин.</label>
+            <span class="control-pair">
+                <input type="range" id="minLifetime" min="0.1" max="10" step="0.1" value="1.5">
+                <input type="number" class="value-input" id="minLifetimeValue" step="0.1" min="0.1" max="10">
+            </span>
+            <label for="maxLifetime" class="sub-label">Макс.</label>
+            <span class="control-pair">
+                <input type="range" id="maxLifetime" min="0.1" max="10" step="0.1" value="4.0">
+                <input type="number" class="value-input" id="maxLifetimeValue" step="0.1" min="0.1" max="10">
+            </span>
+        </div>
+    </div>
+
+    <div>
+        <label for="fadeInDuration">Появление, сек.</label>
+        <span class="control-pair">
+            <input type="range" id="fadeInDuration" min="0" max="2" step="0.1" value="0.5">
+            <input type="number" class="value-input" id="fadeInDurationValue" step="0.1" min="0" max="2">
+        </span>
+    </div>
+
+     <div>
+        <label for="fadeOutDuration">Исчезновение, сек.</label>
+        <span class="control-pair">
+            <input type="range" id="fadeOutDuration" min="0" max="2" step="0.1" value="0.5">
+            <input type="number" class="value-input" id="fadeOutDurationValue" step="0.1" min="0" max="2">
+        </span>
+    </div>
+
+    <div>
+        <label for="blackRatio">Доля непрозрачных, %:</label>
+        <span class="control-pair">
+            <input type="range" id="blackRatio" min="0" max="100" step="1" value="50">
+            <input type="number" class="value-input" id="blackRatioValue" step="1" min="0" max="100">
+        </span>
+    </div>
+
+    <div>
+        <label>Прозрачность</label>
+         <div class="range-group">
+            <label for="minRandomOpacity" class="sub-label">Мин.</label>
+            <span class="control-pair">
+                <input type="range" id="minRandomOpacity" min="0" max="1" step="0.05" value="0.2">
+                <input type="number" class="value-input" id="minRandomOpacityValue" step="0.05" min="0" max="1">
+            </span>
+            <label for="maxRandomOpacity" class="sub-label">Макс.</label>
+            <span class="control-pair">
+                <input type="range" id="maxRandomOpacity" min="0" max="1" step="0.05" value="0.7">
+                <input type="number" class="value-input" id="maxRandomOpacityValue" step="0.05" min="0" max="1">
+            </span>
+        </div>
+    </div>
+    
+    <!-- Заменяемый блок -->
+    <!--
+    <div>
+        <label for="edgeFadeDistance">Зона прозр. у края (px):</label>
+        <input type="range" id="edgeFadeDistance" min="0" max="200" step="5">
+        <span id="edgeFadeDistanceValue">50</span>
+    </div>
+    -->
+
+    <!-- Новый блок -->
+    <div>
+        <label for="edgeFadePercent">Зона прозр. у края (% от меньшей стороны)</label>
+        <span class="control-pair">
+            <input type="range" id="edgeFadePercent" min="0" max="50" step="1" value="15">
+            <input type="number" class="value-input" id="edgeFadePercentValue" step="1" min="0" max="50">
+        </span>
+    </div>
+
+    <div>
+        <label>Скорость</label>
+         <div class="range-group">
+            <label for="minSpeed" class="sub-label">Мин.</label>
+            <span class="control-pair">
+                <input type="range" id="minSpeed" min="0.05" max="5" step="0.05" value="0.5">
+                <input type="number" class="value-input" id="minSpeedValue" step="0.05" min="0.05" max="5">
+            </span>
+            <label for="maxSpeed" class="sub-label">Макс.</label>
+            <span class="control-pair">
+                <input type="range" id="maxSpeed" min="0.05" max="5" step="0.05" value="1.5">
+                <input type="number" class="value-input" id="maxSpeedValue" step="0.05" min="0.05" max="5">
+            </span>
+        </div>
+    </div>
+
+</div>
+<!-- Конец добавляемого HTML -->
+
+<!-- Новые контейнеры -->
+<div class="container-wrapper"> <!-- Добавим обертку для удобства стилизации -->
+
+    <!-- Сначала идут демо-примеры -->
+    <div class="particle-container" id="container-main">
+        <h1 class="text-to-cover" id="main-text">Большой секрет. Кликни</h1>
+        <!-- <canvas class="particle-canvas" id="canvas-main"></canvas> -->
+    </div>
+
+    <div class="particle-container" id="container-secondary">
+        <h1 class="text-to-cover secondary-text" id="secondary-text">Секрет поменьше</h1>
+        <!-- <canvas class="particle-canvas" id="canvas-secondary"></canvas> -->
+    </div>
+
+    <div class="particle-container" id="container-tertiary">
+        <h1 class="text-to-cover tertiary-text" id="tertiary-text">Секретик</h1>
+        <!-- <canvas class="particle-canvas" id="canvas-tertiary"></canvas> -->
+    </div>
+
+    <!-- Потом секция с конфигом -->
+    <div id="config-section">
+        <h3>Конфигурация для копирования</h3>
+        <pre><code id="config-output">{
+  // Настройте параметры выше, и конфиг появится здесь
+}</code></pre>
+        <button id="copy-config-button">Скопировать конфиг</button>
+        <p id="copy-status" style="display: none; color: green; margin-left: 10px;">Скопировано!</p>
+        <h3>Пример использования:</h3>
+        <pre><code>import ParticleEffect from 'particle-hide-effect'; // Импорт библиотеки
+
+const element = document.getElementById('your-element-id');
+const config = /* Вставьте скопированный конфиг сюда */ ;
+
+const effect = new ParticleEffect(element, config);
+
+// Управление:
+// effect.start();
+// effect.stop();
+// effect.toggle();
+// effect.destroy();
+        </code></pre>
+    </div>
+
+</div>
+<!-- Конец новых контейнеров -->
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
