@@ -19,10 +19,10 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: 'npm'
@@ -33,14 +33,21 @@ jobs:
       - name: Build library
         run: npm run build
       
+      - name: Copy demo files to deploy directory
+        run: |
+          mkdir -p _site
+          cp -r demo/* _site/
+          mkdir -p _site/dist
+          cp -r dist/* _site/dist/
+      
       - name: Setup Pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v4
       
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: 'demo'  # путь к директории с демо
+          path: '_site'
       
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2 
+        uses: actions/deploy-pages@v4 
