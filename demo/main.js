@@ -130,8 +130,8 @@ function mapIdToSettingKey(id) {
 }
 
 /**
- * Гарантирует, что min-значения не превышают max-значения в конфиге.
- * @param {object} config - Объект конфигурации
+ * Ensures that min values don't exceed max values in the config.
+ * @param {object} config - Configuration object
  */
 function ensureMinMaxConsistency(config) {
     const pairs = [
@@ -143,11 +143,11 @@ function ensureMinMaxConsistency(config) {
 
     pairs.forEach(pair => {
         if (config.hasOwnProperty(pair.min) && config.hasOwnProperty(pair.max) && config[pair.min] > config[pair.max]) {
-            // Если min > max, меняем их местами
+            // If min > max, swap them
              console.warn(`Inconsistent values for ${pair.min}/${pair.max}. Swapping.`);
              [config[pair.min], config[pair.max]] = [config[pair.max], config[pair.min]];
 
-             // Обновляем значения в соответствующих инпутах/слайдерах
+             // Update values in corresponding inputs/sliders
              updateControlValue(pair.min, config[pair.min]);
              updateControlValue(pair.max, config[pair.max]);
         }
@@ -155,16 +155,16 @@ function ensureMinMaxConsistency(config) {
 }
 
 /**
- * Обновляет значение связанного инпута/слайдера по ключу конфига.
- * @param {string} settingKey - Ключ конфига
- * @param {number} value - Новое значение
+ * Updates the value of a related input/slider by config key.
+ * @param {string} settingKey - Config key
+ * @param {number} value - New value
  */
 function updateControlValue(settingKey, value) {
-    // Ищем инпут и слайдер по обратному маппингу
+    // Find input and slider by reverse mapping
     let inputId = null;
     let sliderId = null;
 
-    // Обратный маппинг
+    // Reverse mapping
     if (settingKey === 'maxRadius') inputId = 'particleSizeValue';
     else if (settingKey === 'minRadius') inputId = 'minParticleSizeValue';
     else if (settingKey === 'minLifetimeSeconds') inputId = 'minLifetimeValue';
@@ -176,7 +176,7 @@ function updateControlValue(settingKey, value) {
     else if (settingKey === 'maxSemiTransparentOpacity') inputId = 'maxRandomOpacityValue';
     else if (settingKey === 'minSpeed') inputId = 'minSpeedValue';
     else if (settingKey === 'maxSpeed') inputId = 'maxSpeedValue';
-    else inputId = settingKey + 'Value'; // Общее правило
+    else inputId = settingKey + 'Value'; // General rule
 
     sliderId = inputId.replace('Value', 'Slider');
 
@@ -190,9 +190,9 @@ function updateControlValue(settingKey, value) {
 }
 
 /**
- * Определяет количество знаков после запятой по атрибуту step.
- * @param {string} stepAttr - Значение атрибута step
- * @returns {number} Количество знаков
+ * Determines the number of decimal places based on the step attribute.
+ * @param {string} stepAttr - Value of step attribute
+ * @returns {number} Number of decimal places
  */
 function getPrecision(stepAttr) {
     if (!stepAttr || !stepAttr.includes('.')) return 0;
@@ -200,13 +200,13 @@ function getPrecision(stepAttr) {
 }
 
 /**
- * Форматирует объект конфигурации в читаемую строку.
- * @param {object} config - Объект конфигурации
- * @returns {string} Форматированная строка
+ * Formats a configuration object into a readable string.
+ * @param {object} config - Configuration object
+ * @returns {string} Formatted string
  */
 function formatConfigForDisplay(config) {
     let configString = '{\n';
-    const keys = Object.keys(config).sort(); // Сортируем ключи для консистентности
+    const keys = Object.keys(config).sort(); // Sort keys for consistency
 
     keys.forEach((key, index) => {
         const value = config[key];
@@ -222,12 +222,12 @@ function formatConfigForDisplay(config) {
 }
 
 /**
- * Обновляет конфигурацию демо-эффекта и отображение конфига.
+ * Updates the demo effect configuration and the config display.
  */
 function updateDemoAndConfigOutput() {
     currentConfig = getCurrentConfigFromControls();
 
-    // Обновляем конфиг для всех экземпляров
+    // Update config for all instances
     effectInstances.forEach(instance => {
         if (instance) {
             instance.updateConfig(currentConfig);
@@ -237,13 +237,13 @@ function updateDemoAndConfigOutput() {
     const formattedConfig = formatConfigForDisplay(currentConfig);
     configOutput.textContent = formattedConfig;
 
-    // Сбрасываем статус копирования
+    // Reset copy status
     hideCopyStatus();
 }
 
 /**
- * Копирует текст в буфер обмена.
- * @param {string} text - Текст для копирования
+ * Copies text to clipboard.
+ * @param {string} text - Text to copy
  */
 async function copyToClipboard(text) {
     try {
@@ -252,35 +252,35 @@ async function copyToClipboard(text) {
         showCopyStatus();
     } catch (err) {
         console.error('Failed to copy config: ', err);
-        alert('Не удалось скопировать конфиг. Возможно, ваш браузер не поддерживает эту функцию или страница открыта не по HTTPS.');
+        alert('Failed to copy config. Your browser might not support this feature or the page is not opened via HTTPS.');
     }
 }
 
-/** Показывает сообщение "Скопировано!" */
+/** Shows "Copied!" message */
 function showCopyStatus() {
     copyStatus.style.display = 'inline';
-    setTimeout(hideCopyStatus, 2000); // Скрываем через 2 секунды
+    setTimeout(hideCopyStatus, 2000); // Hide after 2 seconds
 }
 
-/** Скрывает сообщение "Скопировано!" */
+/** Hides "Copied!" message */
 function hideCopyStatus() {
     copyStatus.style.display = 'none';
 }
 
 /**
- * Обновляет контролы размера частиц (min/max слайдеры и инпуты), 
- * обеспечивая их связность.
- * @param {string} changedId - ID элемента, который вызвал изменение.
- * @param {number} newValue - Новое значение измененного элемента (уже проверено на NaN).
+ * Updates particle size controls (min/max sliders and inputs),
+ * ensuring their consistency.
+ * @param {string} changedId - ID of the element that triggered the change.
+ * @param {number} newValue - New value of the changed element (already checked for NaN).
  */
 function updateSizeControls(changedId, newValue) {
     console.log(`updateSizeControls called for ${changedId} with value ${newValue}`);
 
-    if (isUpdatingSizeControls) { // Используем флаг
+    if (isUpdatingSizeControls) { // Use flag
         console.log('Re-entry blocked by isUpdatingSizeControls flag');
         return;
     }
-    isUpdatingSizeControls = true; // Устанавливаем флаг
+    isUpdatingSizeControls = true; // Set flag
 
     try {
         const minSlider = document.getElementById('minParticleSize');

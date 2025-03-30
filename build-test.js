@@ -1,54 +1,54 @@
 /**
- * Тестовый скрипт для проверки сборки библиотеки
- * Запуск: node build-test.js
+ * Test script for checking the library build
+ * Run: node build-test.js
  */
 
 const fs = require('fs');
 const path = require('path');
 
-// Проверка наличия директории dist
+// Check if dist directory exists
 if (!fs.existsSync('./dist')) {
-    console.error('❌ Директория dist не найдена. Выполните npm run build перед тестированием.');
+    console.error('❌ The dist directory was not found. Run npm run build before testing.');
     process.exit(1);
 }
 
-// Проверка наличия файлов сборки
+// Check if build files exist
 const esModule = path.join('./dist', 'particle-effect.es.js');
 const umdModule = path.join('./dist', 'particle-effect.umd.js');
 
 if (!fs.existsSync(esModule)) {
-    console.error('❌ ES модуль не найден:', esModule);
+    console.error('❌ ES module not found:', esModule);
     process.exit(1);
 }
 
 if (!fs.existsSync(umdModule)) {
-    console.error('❌ UMD модуль не найден:', umdModule);
+    console.error('❌ UMD module not found:', umdModule);
     process.exit(1);
 }
 
-console.log('✅ ES модуль найден:', esModule);
-console.log('✅ UMD модуль найден:', umdModule);
+console.log('✅ ES module found:', esModule);
+console.log('✅ UMD module found:', umdModule);
 
-// Проверка содержимого файлов
+// Check the content of files
 const esContent = fs.readFileSync(esModule, 'utf8');
 const umdContent = fs.readFileSync(umdModule, 'utf8');
 
 if (!esContent || esContent.length < 100) {
-    console.error('❌ ES модуль пуст или повреждён.');
+    console.error('❌ ES module is empty or corrupted.');
     process.exit(1);
 }
 
 if (!umdContent || umdContent.length < 100) {
-    console.error('❌ UMD модуль пуст или повреждён.');
+    console.error('❌ UMD module is empty or corrupted.');
     process.exit(1);
 }
 
-console.log('✅ Проверка содержимого файлов прошла успешно.');
+console.log('✅ File content check passed successfully.');
 
-// Проверка экспорта класса ParticleEffect в ES модуле
+// Check for ParticleEffect class export in ES module
 if (!esContent.includes('export default ParticleEffect') && 
     !esContent.includes('export{ParticleEffect as default}')) {
-    console.warn('⚠️ В ES модуле не найден экспорт по умолчанию класса ParticleEffect.');
+    console.warn('⚠️ Default export of ParticleEffect class not found in ES module.');
 }
 
-console.log('✅ Все проверки пройдены успешно. Библиотека готова к публикации.'); 
+console.log('✅ All checks passed successfully. The library is ready for publication.'); 

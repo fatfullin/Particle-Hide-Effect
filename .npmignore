@@ -1,29 +1,29 @@
-# Исходный код (доступны только собранные файлы)
+# Source code (only built files are available)
 /src
 
-# Демо материалы (они будут доступны на GitHub Pages)
+# Demo materials (they will be available on GitHub Pages)
 /demo
 
-# Конфигурационные файлы
+# Configuration files
 vite.config.js
 .github/
 .gitignore
 .npmignore
 
-# Файлы разработки и тесты
+# Development files and tests
 /coverage
 /tests
 *.test.js
 *.spec.js
 
-# Настройки редакторов
+# Editor settings
 .vscode/
 .idea/
 *.swp
 *.swo
 .DS_Store
 
-# Логи и временные файлы
+# Logs and temporary files
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
