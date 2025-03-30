@@ -39,6 +39,7 @@ jobs:
           cp -r demo/* _site/
           mkdir -p _site/dist
           cp -r dist/* _site/dist/
+          cp index.html _site/
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
