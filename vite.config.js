@@ -4,27 +4,27 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   build: {
     lib: {
-      // Указываем входной файл библиотеки
+      // Specify the library entry file
       entry: resolve(__dirname, 'src/particle-effect.js'),
-      // Имя, под которым библиотека будет доступна глобально (для UMD сборки)
+      // Name under which the library will be available globally (for UMD build)
       name: 'ParticleEffect',
-      // Имена файлов для разных форматов сборки
+      // File names for different build formats
       fileName: (format) => `particle-effect.${format}.js`,
     },
     rollupOptions: {
-      // Можно добавить внешние зависимости, если они есть (например, 'lodash')
+      // You can add external dependencies if needed (for example, 'lodash')
       // external: [],
       output: {
-        // Настройки для UMD сборки
+        // Settings for UMD build
         globals: {
-          // Пример: если бы мы использовали vue:
+          // Example: if we were using vue:
           // vue: 'Vue'
         }
       }
     }
   },
   server: {
-    // Настройка сервера разработки
+    // Development server configuration
     open: '/demo/index.html',
   }
 }); 
