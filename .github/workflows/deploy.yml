@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main  # или master, в зависимости от вашей основной ветки
+      - main
 
 permissions:
   contents: read
@@ -33,13 +33,14 @@ jobs:
       - name: Build library
         run: npm run build
       
-      - name: Copy demo files to deploy directory
+      - name: Copy files to deploy directory
         run: |
           mkdir -p _site
-          cp -r demo/* _site/
+          cp index.html _site/
+          mkdir -p _site/demo
+          cp -r demo/* _site/demo/
           mkdir -p _site/dist
           cp -r dist/* _site/dist/
-          cp index.html _site/
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
