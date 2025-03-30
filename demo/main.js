@@ -1,37 +1,37 @@
-// ParticleEffect теперь доступен как глобальный объект из UMD скрипта
-// в предыдущих версиях использовался:
+// ParticleEffect is now available as a global object from the UMD script
+// in previous versions we used:
 // import ParticleEffect from '../dist/particle-effect.es.js';
-// или
+// or
 // window.ParticleEffect = ParticleEffect;
 
-// --- DOM Элементы ---
+// --- DOM Elements ---
 const controlsContainer = document.getElementById('controls-container');
 const configOutput = document.getElementById('config-output');
 const copyButton = document.getElementById('copy-config-button');
 const copyStatus = document.getElementById('copy-status');
 
-// Основной контейнер для демо
+// Main demo container
 const demoContainer = document.getElementById('container-main');
-// Добавляем ссылки на другие контейнеры
+// References to other containers
 const demoContainerSecondary = document.getElementById('container-secondary');
 const demoContainerTertiary = document.getElementById('container-tertiary');
 
-// --- Глобальные переменные ---
-let currentConfig = {}; // Текущая конфигурация из слайдеров
-// Храним все экземпляры эффектов
+// --- Global Variables ---
+let currentConfig = {}; // Current configuration from sliders
+// Store all effect instances
 let effectInstances = [];
-// Флаги для предотвращения рекурсивных вызовов при обновлении парных контролов
+// Flags to prevent recursive calls when updating paired controls
 let isUpdatingSizeControls = false;
 let isUpdatingLifetimeControls = false;
 let isUpdatingOpacityControls = false;
 let isUpdatingSpeedControls = false;
-let isUpdatingSingleControl = {}; // Используем объект для отслеживания отдельных контролов
+let isUpdatingSingleControl = {}; // Use an object to track individual controls
 
-// --- Функции ---
+// --- Functions ---
 
 /**
- * Собирает текущие значения из всех контролов в объект конфигурации.
- * @returns {object} Объект конфигурации
+ * Collects current values from all controls into a configuration object.
+ * @returns {object} Configuration object
  */
 function getCurrentConfigFromControls() {
     const config = {};
@@ -41,75 +41,75 @@ function getCurrentConfigFromControls() {
         const id = input.id;
         let value = input.type === 'range' ? parseFloat(input.value) : (input.value === '' ? null : parseFloat(input.value));
         
-        // Используем текущее значение слайдера или дефолт, если инпут пустой или невалидный
+        // Use current slider value or default if input is empty or invalid
         if (isNaN(value) || value === null) {
             let correspondingSliderId = id.replace('Value', 'Slider');
-            // Определяем ID связанного слайдера (с учетом особых случаев)
+            // Determine the ID of the related slider (accounting for special cases)
             if (id === 'particleDensityValue') correspondingSliderId = 'particleDensity';
             else if (id === 'fadeInDurationValue') correspondingSliderId = 'fadeInDuration';
             else if (id === 'fadeOutDurationValue') correspondingSliderId = 'fadeOutDuration';
             else if (id === 'blackRatioValue') correspondingSliderId = 'blackRatio';
             else if (id === 'edgeFadePercentValue') correspondingSliderId = 'edgeFadePercent';
-            else if (id === 'particleSizeValue') correspondingSliderId = 'particleSize'; // Для макс. радиуса ID слайдера 'particleSize'
-            // Для парных: ID слайдера = ID инпута без 'Value' (minParticleSize, maxLifetime и т.д.)
+            else if (id === 'particleSizeValue') correspondingSliderId = 'particleSize'; // For max radius, slider ID is 'particleSize'
+            // For paired controls: slider ID = input ID without 'Value' (minParticleSize, maxLifetime, etc.)
             
             const slider = document.getElementById(correspondingSliderId);
             if(slider) {
                  value = parseFloat(slider.value);
                  console.log(`Input ${id} was invalid, using slider ${correspondingSliderId} value: ${value}`);
             } else {
-                 // Если и слайдера нет, пытаемся взять дефолтное значение конфига
+                 // If slider doesn't exist, try to get default config value
                  const settingKeyFallback = input.dataset.settingKey || mapIdToSettingKey(id);
                  if (settingKeyFallback && ParticleEffect.defaultConfig.hasOwnProperty(settingKeyFallback)) {
                       value = ParticleEffect.defaultConfig[settingKeyFallback]; 
                       console.log(`Input ${id} and slider ${correspondingSliderId} invalid/missing, using default config value for ${settingKeyFallback}: ${value}`);
                  } else {
                      console.warn(`Cannot determine value for input ${id}, skipping.`);
-                     return; // Пропускаем, если не можем определить значение
+                     return; // Skip if we can't determine the value
                  }
             }
-            // На всякий случай проверяем значение после всех фолбэков
+            // Check value after all fallbacks just to be safe
             if (isNaN(value) || value === null) {
                 console.error(`Value for ${id} is still invalid after fallbacks, skipping.`);
                 return; 
             }
         }
 
-        // --- УДАЛЕН БЛОК ОГРАНИЧЕНИЯ ДИАПАЗОНА ОТСЮДА --- 
-        // Теперь это делается в update... функциях
+        // --- REMOVED RANGE LIMITATION BLOCK FROM HERE --- 
+        // This is now done in the update... functions
         /*
         if (input.type === 'number') { ... }
         */
-        // --- КОНЕЦ УДАЛЕННОГО БЛОКА ---
+        // --- END OF REMOVED BLOCK ---
 
-        // Преобразование ID контрола в ключ конфига ParticleEffect
+        // Convert control ID to ParticleEffect config key
         const settingKey = input.dataset.settingKey || mapIdToSettingKey(id);
 
         if (settingKey) {
-             // Теперь здесь всегда будет гарантированно ограниченное значение
+             // Now we always have a guaranteed limited value here
             config[settingKey] = value;
         } else {
             console.warn(`Could not map input ${id} to a config setting key.`);
         }
     });
 
-    // Логика ensureMinMaxConsistency теперь не нужна здесь, 
-    // так как она обрабатывается в updateXControls функциях.
+    // The ensureMinMaxConsistency logic is no longer needed here,
+    // as it's handled in the updateXControls functions.
     // ensureMinMaxConsistency(config); 
 
     return config;
 }
 
 /**
- * Преобразует ID HTML-элемента в ключ объекта конфигурации ParticleEffect.
- * @param {string} id - ID элемента
- * @returns {string|null} Ключ конфигурации или null
+ * Converts an HTML element ID to a ParticleEffect configuration key.
+ * @param {string} id - Element ID
+ * @returns {string|null} Configuration key or null
  */
 function mapIdToSettingKey(id) {
-    // Удаляем суффиксы Value/Slider и приводим к camelCase
+    // Remove Value/Slider suffixes and convert to camelCase
     let baseKey = id.replace(/Value$|Slider$/, '');
 
-    // Специальные случаи
+    // Special cases
     if (baseKey === 'particleSize') return 'maxRadius';
     if (baseKey === 'minParticleSize') return 'minRadius';
     if (baseKey === 'minLifetime') return 'minLifetimeSeconds';
@@ -120,13 +120,13 @@ function mapIdToSettingKey(id) {
     if (baseKey === 'minRandomOpacity') return 'minSemiTransparentOpacity';
     if (baseKey === 'maxRandomOpacity') return 'maxSemiTransparentOpacity';
 
-    // Общее правило (если не спец. случай)
-    // Проверяем, есть ли такой ключ в дефолтном конфиге
+    // General rule (if not a special case)
+    // Check if the key exists in the default config
     if (ParticleEffect.defaultConfig.hasOwnProperty(baseKey)) {
         return baseKey;
     }
 
-    return null; // Не удалось найти соответствие
+    return null; // No matching key found
 }
 
 /**
@@ -351,10 +351,10 @@ function updateSizeControls(changedId, newValue) {
 }
 
 /**
- * Обновляет контролы времени жизни частиц (min/max слайдеры и инпуты),
- * обеспечивая их связность.
- * @param {string} changedId - ID элемента, который вызвал изменение.
- * @param {number} newValue - Новое значение измененного элемента.
+ * Updates lifetime controls (min/max sliders and inputs),
+ * ensuring their consistency.
+ * @param {string} changedId - ID of the element that triggered the change.
+ * @param {number} newValue - New value of the changed element.
  */
 function updateLifetimeControls(changedId, newValue) {
     console.log(`updateLifetimeControls called for ${changedId} with value ${newValue}`);
@@ -413,10 +413,10 @@ function updateLifetimeControls(changedId, newValue) {
 }
 
 /**
- * Обновляет контролы прозрачности частиц (min/max слайдеры и инпуты),
- * обеспечивая их связность.
- * @param {string} changedId - ID элемента, который вызвал изменение.
- * @param {number} newValue - Новое значение измененного элемента.
+ * Updates opacity controls (min/max sliders and inputs),
+ * ensuring their consistency.
+ * @param {string} changedId - ID of the element that triggered the change.
+ * @param {number} newValue - New value of the changed element.
  */
 function updateOpacityControls(changedId, newValue) {
     console.log(`updateOpacityControls called for ${changedId} with value ${newValue}`);
@@ -475,10 +475,10 @@ function updateOpacityControls(changedId, newValue) {
 }
 
 /**
- * Обновляет контролы скорости частиц (min/max слайдеры и инпуты),
- * обеспечивая их связность.
- * @param {string} changedId - ID элемента, который вызвал изменение.
- * @param {number} newValue - Новое значение измененного элемента.
+ * Updates speed controls (min/max sliders and inputs),
+ * ensuring their consistency.
+ * @param {string} changedId - ID of the element that triggered the change.
+ * @param {number} newValue - New value of the changed element.
  */
 function updateSpeedControls(changedId, newValue) {
     console.log(`updateSpeedControls called for ${changedId} with value ${newValue}`);
@@ -537,17 +537,17 @@ function updateSpeedControls(changedId, newValue) {
 }
 
 /**
- * Обновляет одиночный контрол (слайдер + инпут), обеспечивая их связность и ограничение диапазона.
- * @param {string} baseId - Базовый ID контрола (например, 'particleDensity', 'fadeInDuration').
- * @param {string} changedId - ID элемента, который вызвал изменение.
- * @param {number} newValue - Новое значение измененного элемента.
+ * Updates a single control pair (slider + input), ensuring consistency and range limitation.
+ * @param {string} baseId - Base ID of the control (e.g., 'particleDensity', 'fadeInDuration').
+ * @param {string} changedId - ID of the element that triggered the change.
+ * @param {number} newValue - New value of the changed element.
  */
 function updateSingleControlPair(baseId, changedId, newValue) {
     const sliderId = baseId;
     const inputId = baseId + 'Value';
     console.log(`updateSingleControlPair called for baseId=${baseId}, changedId=${changedId}, value=${newValue}`);
 
-    // Предотвращение рекурсии для этого конкретного контрола
+    // Prevent recursion for this specific control
     if (isUpdatingSingleControl[baseId]) {
         console.log(`Re-entry blocked for ${baseId}`);
         return;
@@ -569,24 +569,24 @@ function updateSingleControlPair(baseId, changedId, newValue) {
 
         let finalValue = newValue;
 
-        // 1. Проверяем, если значение NaN (может случиться при невалидном вводе)
+        // 1. Check if value is NaN (can happen with invalid input)
         if (isNaN(finalValue)) {
-            // Пытаемся взять значение из другого элемента или дефолт
+            // Try to get value from the other element or use default
             const otherElement = changedId === sliderId ? input : slider;
             finalValue = parseFloat(otherElement.value);
-            if (isNaN(finalValue)) { // Если и там невалидно, берем дефолт
+            if (isNaN(finalValue)) { // If still invalid, use default
                  const settingKey = mapIdToSettingKey(changedId) || mapIdToSettingKey(baseId);
                  if (settingKey && ParticleEffect.defaultConfig.hasOwnProperty(settingKey)) {
                      finalValue = ParticleEffect.defaultConfig[settingKey];
                      console.warn(`Invalid input for ${changedId}, reverting to default ${finalValue}`);
                  } else {
                      console.error(`Invalid input for ${changedId} and no default found. Cannot update.`);
-                     return; // Не можем обновить
+                     return; // Cannot update
                  }
             }
         }
 
-        // 2. Ограничиваем значение диапазоном min/max
+        // 2. Limit value to min/max range
         if (!isNaN(min) && !isNaN(max)) {
              const clampedValue = Math.max(min, Math.min(max, finalValue));
              if (clampedValue !== finalValue) {
@@ -597,30 +597,30 @@ function updateSingleControlPair(baseId, changedId, newValue) {
             console.warn(`Invalid min/max attributes for slider ${sliderId}`);
         }
 
-        // 3. Форматируем значение
+        // 3. Format value
         const formattedValue = finalValue.toFixed(precision);
 
-        // 4. Обновляем оба элемента (с проверкой, чтобы не вызывать лишние события)
+        // 4. Update both elements (checking to avoid triggering unnecessary events)
         if (input.value !== formattedValue) {
             input.value = formattedValue;
         }
-        // Сравниваем числовые значения для слайдера
+        // Compare numeric values for slider
         if (parseFloat(slider.value) !== finalValue) {
              slider.value = finalValue; 
         }
         console.log(`Controls updated for ${baseId}: slider=${slider.value}, input=${input.value}`);
 
     } finally {
-        isUpdatingSingleControl[baseId] = false; // Сбрасываем флаг для этого контрола
+        isUpdatingSingleControl[baseId] = false; // Reset flag for this control
     }
 }
 
 // --- Инициализация ---
 
-// Устанавливаем начальные значения контролов из дефолтного конфига
+// Set initial control values from default config
 Object.keys(ParticleEffect.defaultConfig).forEach(key => {
     updateControlValue(key, ParticleEffect.defaultConfig[key]);
-    // Дополнительно сохраняем ключ конфига в data-атрибут для упрощения
+    // Additionally save the config key in a data attribute for simplification
     let inputId = null;
      if (key === 'maxRadius') inputId = 'particleSizeValue';
      else if (key === 'minRadius') inputId = 'minParticleSizeValue';
@@ -642,9 +642,9 @@ Object.keys(ParticleEffect.defaultConfig).forEach(key => {
 });
 
 
-// Создаем экземпляры эффектов для всех демо-контейнеров
-effectInstances = []; // Очищаем массив на всякий случай
-// Убрано getCurrentConfigFromControls() отсюда, т.к. оно вызывается в updateDemoAndConfigOutput()
+// Create effect instances for all demo containers
+effectInstances = []; // Clear array just in case
+// Removed getCurrentConfigFromControls() from here, as it's called in updateDemoAndConfigOutput()
 // currentConfig = getCurrentConfigFromControls(); 
 
 [demoContainer, demoContainerSecondary, demoContainerTertiary].forEach((container, index) => {
@@ -652,36 +652,36 @@ effectInstances = []; // Очищаем массив на всякий случ�
         try {
             const instance = new ParticleEffect(container, {
                 ...currentConfig,
-                autoStart: false // Отключаем автостарт
+                autoStart: false // Disable autostart
             });
             effectInstances.push(instance);
             console.log(`ParticleEffect initialized for container ${index + 1}.`);
 
-            // Находим текстовый элемент внутри контейнера
+            // Find the text element inside the container
             const textElement = container.querySelector('.text-to-cover');
 
-            // Добавляем слушатель клика для ручного запуска/остановки
+            // Add click listener for manual start/stop
             container.addEventListener('click', () => {
-                if (!textElement) return; // Если текста нет, ничего не делаем
+                if (!textElement) return; // If no text, do nothing
 
                 console.log(`Toggling effect for container ${index + 1}`);
 
-                // Логика скрытия/показа текста ДО переключения эффекта
+                // Logic for hiding/showing text BEFORE toggling the effect
                 if (instance.isActive) {
-                    // Если сейчас активен (будет остановлен), ПОКАЗЫВАЕМ текст
+                    // If currently active (will be stopped), SHOW text
                     textElement.classList.remove('text-hidden');
                 } else {
-                    // Если сейчас неактивен (будет запущен), СКРЫВАЕМ текст
+                    // If currently inactive (will be started), HIDE text
                     textElement.classList.add('text-hidden');
                 }
 
-                // Переключаем сам эффект
+                // Toggle the effect itself
                 instance.toggle();
             });
 
         } catch (error) {
             console.error(`Failed to initialize ParticleEffect for container ${index + 1}:`, error);
-            effectInstances.push(null); // Добавляем null, чтобы сохранить порядок индексов
+            effectInstances.push(null); // Add null to preserve index order
         }
     } else {
         console.warn(`Container ${index + 1} not found.`);
@@ -689,10 +689,10 @@ effectInstances = []; // Очищаем массив на всякий случ�
     }
 });
 
-// Вызываем один раз после инициализации всех эффектов
+// Call once after initializing all effects
 updateDemoAndConfigOutput();
 
-// Добавляем слушатели на все контролы
+// Add listeners to all controls
 controlsContainer.addEventListener('input', (event) => {
     const element = event.target;
     const id = element.id;
@@ -704,14 +704,14 @@ controlsContainer.addEventListener('input', (event) => {
         return;
     }
 
-    // Определяем, к какой группе парных контролов принадлежит элемент
+    // Determine which paired control group the element belongs to
     const isSizeControl = ['minParticleSize', 'minParticleSizeValue', 'particleSize', 'particleSizeValue'].includes(id);
     const isLifetimeControl = ['minLifetime', 'minLifetimeValue', 'maxLifetime', 'maxLifetimeValue'].includes(id);
     const isOpacityControl = ['minRandomOpacity', 'minRandomOpacityValue', 'maxRandomOpacity', 'maxRandomOpacityValue'].includes(id);
     const isSpeedControl = ['minSpeed', 'minSpeedValue', 'maxSpeed', 'maxSpeedValue'].includes(id);
     const isPairedControl = isSizeControl || isLifetimeControl || isOpacityControl || isSpeedControl;
 
-    // Определяем одиночные контролы по их базовому ID
+    // Determine single controls by their base ID
     const singleControlBaseIds = ['particleDensity', 'fadeInDuration', 'fadeOutDuration', 'blackRatio', 'edgeFadePercent'];
     let singleControlInfo = null;
     for (const baseId of singleControlBaseIds) {
@@ -726,7 +726,7 @@ controlsContainer.addEventListener('input', (event) => {
     if (isPairedControl) {
         if (type === 'range') {
             if (!isNaN(value)) {
-                // Вызываем соответствующую функцию обновления
+                // Call the appropriate update function
                 if (isSizeControl) updateSizeControls(id, value);
                 else if (isLifetimeControl) updateLifetimeControls(id, value);
                 else if (isOpacityControl) updateOpacityControls(id, value);
@@ -734,9 +734,9 @@ controlsContainer.addEventListener('input', (event) => {
             } else {
                 console.warn(`Invalid number from range slider ${id}: ${element.value}.`);
             }
-        } else { // Инпут пары изменился (type === 'number')
+        } else { // Paired input changed (type === 'number')
             console.log(`Pair number input ${id} changed during input. Only updating slider position.`);
-            // Только обновляем позицию соответствующего слайдера
+            // Only update position of the corresponding slider
             let sliderToUpdate = null;
             if (id === 'minParticleSizeValue') sliderToUpdate = document.getElementById('minParticleSize');
             else if (id === 'particleSizeValue') sliderToUpdate = document.getElementById('particleSize');
@@ -754,15 +754,15 @@ controlsContainer.addEventListener('input', (event) => {
                  console.log(`Updated slider ${sliderToUpdate.id} position to ${sliderToUpdate.value}`);
             }
         }
-    } else { // Не парный контрол
-        // Проверяем, является ли это одним из наших одиночных контролов
+    } else { // Not a paired control
+        // Check if this is one of our single controls
         if (singleControlInfo) {
             if (singleControlInfo.isSlider) {
-                // Если изменился СЛАЙДЕР одиночного контрола, вызываем полный апдейт
+                // If SLIDER of a single control changed, call full update
                 console.log(`Handling single control SLIDER input: baseId=${singleControlInfo.baseId}, changedId=${id}`);
                 updateSingleControlPair(singleControlInfo.baseId, id, value);
             } else if (singleControlInfo.isInput) {
-                // Если изменился ИНПУТ одиночного контрола, ТОЛЬКО обновляем слайдер
+                // If INPUT of a single control changed, ONLY update slider position
                 console.log(`Handling single control INPUT input: baseId=${singleControlInfo.baseId}, changedId=${id}. Updating slider position only.`);
                 const sliderToUpdate = document.getElementById(singleControlInfo.baseId);
                 if (sliderToUpdate && !isNaN(value)) {
@@ -772,17 +772,17 @@ controlsContainer.addEventListener('input', (event) => {
                 }
             }
         } else {
-            // Если это не известный парный или одиночный контрол, пропускаем
+            // If not a known paired or single control, skip
             console.log(`Ignoring unknown control during input: ${id}`);
         }
     }
 
-    // Обновляем демо и вывод конфига ПОСЛЕ всех манипуляций
+    // Update demo and config output AFTER all manipulations
     console.log('Input listener finished, calling updateDemoAndConfigOutput...');
     updateDemoAndConfigOutput(); 
 });
 
-// Слушатель на поля ввода для обновления по Enter или потере фокуса
+// Listener for input fields to update on Enter or focus loss
 controlsContainer.addEventListener('change', (event) => {
      const element = event.target;
      const id = element.id;
@@ -790,7 +790,7 @@ controlsContainer.addEventListener('change', (event) => {
 
      if (type === 'number') {
          console.log(`Change event on number input: ${id}`);
-         // Определяем, к какой группе парных контролов принадлежит элемент
+         // Determine which paired control group the element belongs to
          const isSizeControl = ['minParticleSizeValue', 'particleSizeValue'].includes(id);
          const isLifetimeControl = ['minLifetimeValue', 'maxLifetimeValue'].includes(id);
          const isOpacityControl = ['minRandomOpacityValue', 'maxRandomOpacityValue'].includes(id);
@@ -798,30 +798,30 @@ controlsContainer.addEventListener('change', (event) => {
          const isPairedInput = isSizeControl || isLifetimeControl || isOpacityControl || isSpeedControl;
 
          if (isPairedInput) {
-             // Вызываем полную логику связывания ЗДЕСЬ, после завершения ввода
+             // Call full linking logic HERE, after input completion
              let value = parseFloat(element.value);
               if (!isNaN(value)) {
                  console.log(`Calling update<Pair>Controls from CHANGE event for ${id} with value ${value}`);
-                 // Вызываем соответствующую функцию обновления
+                 // Call the appropriate update function
                  if (isSizeControl) updateSizeControls(id, value);
                  else if (isLifetimeControl) updateLifetimeControls(id, value);
                  else if (isOpacityControl) updateOpacityControls(id, value);
                  else if (isSpeedControl) updateSpeedControls(id, value);
 
-                 // Обновляем демо после окончательного применения значения
+                 // Update demo after finalizing the value
                  updateDemoAndConfigOutput();
              } else {
                   console.warn(`Invalid number entered in ${id} on change: ${element.value}`);
-                  // Возможно, стоит восстановить предыдущее валидное значение?
+                  // Consider restoring previous valid value?
              }
          } else {
-             // Проверяем, одиночный ли это контрол
+             // Check if this is a single control
              if (singleControlInfo) {
                  console.log(`Change event on single control number input: baseId=${singleControlInfo.baseId}, changedId=${id}`);
-                 // Вызываем общую функцию обновления для окончательной проверки/ограничения/форматирования
+                 // Call general update function for final validation/limiting/formatting
                  let value = parseFloat(element.value);
                  updateSingleControlPair(singleControlInfo.baseId, id, value);
-                 // Демо обновится ниже, т.к. updateDemoAndConfigOutput вызывается в конце
+                 // Demo will be updated below, as updateDemoAndConfigOutput is called at the end
              } else {
                  console.log(`'change' event on unknown number input ${id}. Triggering updateDemo.`);
              }
@@ -830,7 +830,7 @@ controlsContainer.addEventListener('change', (event) => {
 });
 
 
-// Слушатель для кнопки копирования
+// Listener for copy button
 copyButton.addEventListener('click', () => {
     copyToClipboard(configOutput.textContent);
 });

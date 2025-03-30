@@ -1,99 +1,99 @@
-// Класс Частицы (адаптирован для работы внутри ParticleEffect)
+// Particle class (adapted for use inside ParticleEffect)
 class Particle {
-    // Конструктор принимает настройки из экземпляра ParticleEffect
+    // Constructor takes settings from the ParticleEffect instance
     constructor(canvas, ctx, settings) {
         this.canvas = canvas;
         this.ctx = ctx;
-        this.settings = settings; // Сохраняем настройки
-        this.reset(true); // Инициализация состояния
+        this.settings = settings; // Save settings
+        this.reset(true); // Initialize state
     }
 
     reset(isFirstReset = false) {
-        // Рассчитываем область спавна с учетом отступов
+        // Calculate spawn area with margins
         const spawnAreaWidth = Math.max(0, this.canvas.width - 2 * this.settings.particleSpawnMargin);
         const spawnAreaHeight = Math.max(0, this.canvas.height - 2 * this.settings.particleSpawnMargin);
 
-        // Начальная позиция в пределах области спавна
+        // Initial position within spawn area
         this.x = this.settings.particleSpawnMargin + Math.random() * spawnAreaWidth;
         this.y = this.settings.particleSpawnMargin + Math.random() * spawnAreaHeight;
-        // Гарантия нахождения в пределах холста
+        // Ensure position is within canvas bounds
         this.x = Math.max(0, Math.min(this.x, this.canvas.width));
         this.y = Math.max(0, Math.min(this.y, this.canvas.height));
 
-        // Случайный радиус
+        // Random radius
         this.radius = Math.random() * (this.settings.maxRadius - this.settings.minRadius) + this.settings.minRadius;
 
-        // Случайное направление и скорость
+        // Random direction and speed
         const angle = Math.random() * Math.PI * 2;
         const speed = Math.random() * (this.settings.maxSpeed - this.settings.minSpeed) + this.settings.minSpeed;
         this.vx = Math.cos(angle) * speed;
         this.vy = Math.sin(angle) * speed;
 
-        // Начальная прозрачность (черные или полупрозрачные)
+        // Initial opacity (black or semi-transparent)
         if (Math.random() < this.settings.blackRatioPercent / 100.0) {
-            this.initialOpacity = 1.0; // Черные (непрозрачные)
+            this.initialOpacity = 1.0; // Black (opaque)
         } else {
             this.initialOpacity = Math.random() * (this.settings.maxSemiTransparentOpacity - this.settings.minSemiTransparentOpacity) + this.settings.minSemiTransparentOpacity;
         }
 
-        // Случайное время жизни
+        // Random lifetime
         this.lifetimeSeconds = Math.random() * (this.settings.maxLifetimeSeconds - this.settings.minLifetimeSeconds) + this.settings.minLifetimeSeconds;
 
-        // Начальный возраст и прозрачность
+        // Initial age and opacity
         if (isFirstReset) {
-            // При первом запуске даем случайный возраст для разнообразия
+            // On first reset, give a random age for diversity
             this.ageSeconds = Math.random() * this.lifetimeSeconds;
-            this.calculateCurrentOpacity(); // Рассчитываем начальную прозрачность
+            this.calculateCurrentOpacity(); // Calculate initial opacity
         } else {
-            // При ресете возраст и прозрачность обнуляются (для fadeIn)
+            // On subsequent resets, age and opacity are reset (for fadeIn)
             this.ageSeconds = 0;
             this.currentOpacity = 0;
         }
     }
 
-    // Расчет текущей прозрачности с учетом fadeIn, lifetime и fadeOut
+    // Calculate current opacity based on fadeIn, lifetime, and fadeOut
     calculateCurrentOpacity() {
          const fadeInEndTime = this.settings.fadeInDurationSeconds;
          const fadeOutStartTime = Math.max(fadeInEndTime, this.lifetimeSeconds - this.settings.fadeOutDurationSeconds);
 
          if (this.ageSeconds < fadeInEndTime) {
-             // Фаза Fade In
-             const effectiveFadeInDuration = Math.max(0.001, fadeInEndTime); // Избегаем деления на ноль
+             // Fade In phase
+             const effectiveFadeInDuration = Math.max(0.001, fadeInEndTime); // Avoid division by zero
              const fadeInProgress = Math.max(0, Math.min(1, this.ageSeconds / effectiveFadeInDuration));
              this.currentOpacity = this.initialOpacity * fadeInProgress;
          } else if (this.ageSeconds < fadeOutStartTime) {
-             // Фаза полной видимости
+             // Full visibility phase
              this.currentOpacity = this.initialOpacity;
          } else {
-             // Фаза Fade Out
-             const effectiveFadeOutDuration = Math.max(0.001, this.settings.fadeOutDurationSeconds); // Избегаем деления на ноль
+             // Fade Out phase
+             const effectiveFadeOutDuration = Math.max(0.001, this.settings.fadeOutDurationSeconds); // Avoid division by zero
              const timeIntoFadeOut = this.ageSeconds - fadeOutStartTime;
              const fadeOutProgress = Math.min(1, timeIntoFadeOut / effectiveFadeOutDuration);
              this.currentOpacity = this.initialOpacity * (1 - fadeOutProgress);
          }
-         // Ограничиваем прозрачность между 0 и начальным значением
+         // Limit opacity between 0 and initial value
          this.currentOpacity = Math.max(0, Math.min(this.initialOpacity, this.currentOpacity));
     }
 
-    // Обновление состояния частицы за прошедшее время
+    // Update particle state for elapsed time
     update(deltaTimeSeconds) {
         this.ageSeconds += deltaTimeSeconds;
 
-        // Если частица прожила свое время, ресетим ее
+        // If the particle has lived its lifetime, reset it
         if (this.ageSeconds >= this.lifetimeSeconds) {
             this.reset(false);
             return;
         }
 
-        // Двигаем частицу
+        // Move the particle
         this.x += this.vx;
         this.y += this.vy;
 
-        // Обновляем прозрачность
+        // Update opacity
         this.calculateCurrentOpacity();
 
-        // Если частица полностью ушла за пределы холста, ресетим ее
-        // Проверяем только если она видима (currentOpacity > 0)
+        // If the particle has completely gone outside the canvas, reset it
+        // Only check if it's visible (currentOpacity > 0)
          if (this.currentOpacity > 0 && (this.x + this.radius < 0 ||
             this.x - this.radius > this.canvas.width ||
             this.y + this.radius < 0 ||
@@ -103,18 +103,18 @@ class Particle {
         }
     }
 
-    // Отрисовка частицы
+    // Draw the particle
     draw() {
-        // Не рисуем, если полностью прозрачна
+        // Don't draw if completely transparent
         if (this.currentOpacity <= 0) return;
 
         this.ctx.beginPath();
         this.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
 
-        // Базовая прозрачность из расчета жизни
+        // Base opacity from lifetime calculation
         let baseAlpha = Math.max(0, Math.min(1, this.currentOpacity));
 
-        // --- Расчет затухания у краев холста ---
+        // --- Calculate edge fading ---
         const smallerDim = Math.min(this.canvas.width, this.canvas.height);
         const fadeDistancePx = smallerDim * (this.settings.edgeFadePercent / 100.0);
 
@@ -124,18 +124,18 @@ class Particle {
         let edgeFadeFactor = 1.0;
 
         if (fadeDistancePx > 0 && minDist < fadeDistancePx) {
-            // Используем квадратичное затухание для плавности
+            // Use quadratic fade for smoothness
             const normalizedDist = Math.max(0, Math.min(1, minDist / fadeDistancePx));
             edgeFadeFactor = normalizedDist * normalizedDist;
         }
 
-        // Итоговая прозрачность с учетом затухания у краев
+        // Final opacity with edge fading
         const finalAlpha = Math.max(0, Math.min(1, baseAlpha * edgeFadeFactor));
 
-        // Не рисуем, если итоговая прозрачность нулевая
+        // Don't draw if final opacity is zero
         if (finalAlpha <= 0) return;
 
-        // Устанавливаем цвет и прозрачность
+        // Set color and opacity
         const baseRgb = this.settings.particleColor.substring(this.settings.particleColor.indexOf('(') + 1, this.settings.particleColor.lastIndexOf(',')).trim();
         this.ctx.fillStyle = `rgba(${baseRgb}, ${finalAlpha})`;
         this.ctx.fill();
@@ -143,9 +143,9 @@ class Particle {
 }
 
 
-// --- Основной класс библиотеки ---
+// --- Main library class ---
 class ParticleEffect {
-    // Настройки по умолчанию
+    // Default settings
     static defaultConfig = {
         particleDensity: 150,
         particleColor: 'rgba(30, 30, 30, 0.7)',
@@ -162,7 +162,7 @@ class ParticleEffect {
         blackRatioPercent: 50,
         minSemiTransparentOpacity: 0.2,
         maxSemiTransparentOpacity: 0.7,
-        autoStart: true, // Добавим опцию автостарта
+        autoStart: true, // Add autoStart option
     };
 
     constructor(targetElement, userConfig = {}) {
@@ -172,165 +172,161 @@ class ParticleEffect {
         }
         this.targetElement = targetElement;
 
-        // Объединяем пользовательские настройки с дефолтными
+        // Merge user settings with defaults
         this.config = { ...ParticleEffect.defaultConfig, ...userConfig };
 
-        // --- Создание Canvas ---
+        // --- Create Canvas ---
         this.canvas = document.createElement('canvas');
         this.ctx = this.canvas.getContext('2d');
-        this.targetElement.style.position = 'relative'; // Для позиционирования canvas
+        this.targetElement.style.position = 'relative'; // For canvas positioning
         this.canvas.style.position = 'absolute';
         this.canvas.style.top = '0';
         this.canvas.style.left = '0';
         this.canvas.style.width = '100%';
         this.canvas.style.height = '100%';
-        this.canvas.style.pointerEvents = 'none'; // Чтобы не мешал кликам по элементу
+        this.canvas.style.pointerEvents = 'none'; // To not interfere with clicks on the element
         this.targetElement.appendChild(this.canvas);
 
-        // --- Инициализация состояния ---
+        // --- Initialize state ---
         this.particles = [];
         this.animationFrameId = null;
         this.lastTimestamp = 0;
         this.isActive = false;
         this.isDestroyed = false;
 
-        // --- Привязка методов к контексту ---
+        // --- Bind methods to context ---
         this._animate = this._animate.bind(this);
         this._resizeCanvas = this._resizeCanvas.bind(this);
 
-        // --- Наблюдатель за размером ---
-        // Используем ResizeObserver для отслеживания изменения размера родительского элемента
+        // --- Use ResizeObserver to track parent element size changes ---
         this.resizeObserver = new ResizeObserver(entries => {
-            // Обычно тут одна запись, но на всякий случай
-            for (let entry of entries) {
-                // Запускаем ресайз с небольшой задержкой для оптимизации
-                if (this._resizeTimeout) clearTimeout(this._resizeTimeout);
-                this._resizeTimeout = setTimeout(this._resizeCanvas, 50);
+            // Usually there's just one entry, but just in case
+            for (const entry of entries) {
+                // Run resize with a small delay for optimization
+                if (entry.target === this.targetElement && !this.isDestroyed) {
+                    window.requestAnimationFrame(this._resizeCanvas);
+                }
             }
         });
         this.resizeObserver.observe(this.targetElement);
 
-        // Первичная установка размера
+        // Initial size setup
         this._resizeCanvas();
 
-        // Автостарт, если включен
+        // Auto-start if enabled
         if (this.config.autoStart) {
             this.start();
         }
     }
 
-    // --- Приватные методы ---
-
-    // Обновление размера Canvas и пересоздание частиц (если активен)
+    // Update Canvas size and recreate particles (if active)
     _resizeCanvas() {
         if (this.isDestroyed) return;
-        // Используем реальные размеры элемента для canvas
-        this.canvas.width = this.targetElement.offsetWidth;
-        this.canvas.height = this.targetElement.offsetHeight;
 
-        // Пересоздаем частицы только если эффект активен
+        // Use the actual element dimensions for the canvas
+        this.canvas.width = this.targetElement.clientWidth;
+        this.canvas.height = this.targetElement.clientHeight;
+
+        // Recreate particles only if the effect is active
         if (this.isActive) {
             this._createParticles();
         }
     }
 
-    // Создание/пересоздание массива частиц
+    // Create/recreate particle array
     _createParticles() {
-        if (this.isDestroyed || this.canvas.width === 0 || this.canvas.height === 0) {
-            this.particles = [];
-            return;
-        }
+        if (this.isDestroyed) return;
 
-        // Расчет количества частиц на основе плотности
-        const canvasArea = this.canvas.width * this.canvas.height;
-        const densityPerPixel = this.config.particleDensity / 10000.0; // Плотность на px²
-        const calculatedCount = Math.round(canvasArea * densityPerPixel);
+        // Get dimensions in case _createParticles was called directly
+        const width = this.canvas.width;
+        const height = this.canvas.height;
 
-        // Ограничение количества для производительности
-        const finalParticleCount = Math.max(10, Math.min(calculatedCount, 3000)); // От 10 до 3000
+        // Calculate particle count based on density
+        const areaPixels = width * height;
+        const densityPerPixel = this.config.particleDensity / 10000.0; // Density per px²
+        const calculatedCount = Math.floor(areaPixels * densityPerPixel);
 
-        this.particles = []; // Очищаем старые частицы
+        // Limit count for performance
+        const finalParticleCount = Math.max(10, Math.min(calculatedCount, 3000)); // From 10 to 3000
+
+        this.particles = []; // Clear old particles
         for (let i = 0; i < finalParticleCount; i++) {
             this.particles.push(new Particle(this.canvas, this.ctx, this.config));
         }
     }
 
-    // Основной цикл анимации
+    // Main animation loop
     _animate(timestamp) {
-        // Останавливаем цикл, если не активен или уничтожен
+        // Stop the loop if not active or destroyed
         if (!this.isActive || this.isDestroyed) {
             this.animationFrameId = null;
             return;
         }
 
-        // Расчет времени кадра (deltaTimeSeconds)
-        const deltaTimeSeconds = (timestamp - (this.lastTimestamp || timestamp)) / 1000;
+        // Calculate frame time (deltaTimeSeconds)
+        const deltaTimeSeconds = this.lastTimestamp ? (timestamp - this.lastTimestamp) / 1000 : 0;
         this.lastTimestamp = timestamp;
 
-        const maxDeltaTime = 0.05; // Макс. время кадра (чтобы избежать "прыжков" при лагах)
-        const dt = deltaTimeSeconds <= 0 ? (1 / 60) : deltaTimeSeconds; // Безопасное значение, если timestamp не изменился
-        const clampedDeltaTime = Math.min(dt, maxDeltaTime);
+        const maxDeltaTime = 0.05; // Max frame time (to avoid "jumps" during lag)
+        const dt = deltaTimeSeconds <= 0 ? (1 / 60) : deltaTimeSeconds; // Safe value if timestamp hasn't changed
+        const limitedDt = Math.min(dt, maxDeltaTime);
 
-        // Очистка холста
+        // Clear canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Обновление и отрисовка каждой частицы
-        this.particles.forEach(particle => {
-            particle.update(clampedDeltaTime);
+        // Update and draw each particle
+        for (const particle of this.particles) {
+            particle.update(limitedDt);
             particle.draw();
-        });
+        }
 
-        // Запрос следующего кадра анимации
-        this.animationFrameId = requestAnimationFrame(this._animate);
+        // Request next animation frame
+        this.animationFrameId = window.requestAnimationFrame(this._animate);
     }
 
-    // --- Публичные методы API ---
+    // --- Public API ---
 
     /**
-     * Запускает анимацию частиц.
+     * Starts the particle animation
      */
     start() {
-        if (this.isActive || this.isDestroyed) return;
+        if (this.isDestroyed || this.isActive) return;
         this.isActive = true;
-        console.log('ParticleEffect: Starting animation');
 
-        // Убедимся, что размер актуален перед стартом
-        this._resizeCanvas(); // Это также вызовет _createParticles()
+        // Ensure size is up-to-date before starting
+        this._resizeCanvas(); // This will also call _createParticles()
 
-        // Начинаем цикл анимации, если еще не запущен
+        // Start animation loop if not already running
         if (!this.animationFrameId) {
-             // Устанавливаем lastTimestamp перед первым кадром
+            // Set lastTimestamp before first frame
             this.lastTimestamp = performance.now();
-            this.animationFrameId = requestAnimationFrame(this._animate);
+            this.animationFrameId = window.requestAnimationFrame(this._animate);
         }
     }
 
     /**
-     * Останавливает анимацию частиц.
+     * Stops the particle animation
      */
     stop() {
-        if (!this.isActive || this.isDestroyed) return;
+        if (this.isDestroyed || !this.isActive) return;
         this.isActive = false;
-        console.log('ParticleEffect: Stopping animation');
 
-        // Отменяем следующий кадр анимации
+        // Cancel next animation frame
         if (this.animationFrameId) {
-            cancelAnimationFrame(this.animationFrameId);
+            window.cancelAnimationFrame(this.animationFrameId);
             this.animationFrameId = null;
         }
-        // Очищаем холст при остановке, чтобы частицы исчезли
-        if (this.ctx && this.canvas) {
+
+        // Clear canvas when stopping to make particles disappear
+        if (this.ctx) {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         }
-         // Опционально: можно очистить холст при остановке
-        // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
     /**
-     * Переключает состояние анимации (запущена/остановлена).
+     * Toggles the particle animation state
      */
     toggle() {
-        if (this.isDestroyed) return;
         if (this.isActive) {
             this.stop();
         } else {
@@ -338,60 +334,56 @@ class ParticleEffect {
         }
     }
 
-   /**
-     * Обновляет конфигурацию эффекта новыми настройками.
-     * @param {object} newConfig - Объект с новыми параметрами для обновления.
+    /**
+     * Updates the configuration with new options
+     * @param {Object} newConfig - New configuration options
      */
     updateConfig(newConfig) {
-        if (this.isDestroyed || !newConfig) return;
+        if (this.isDestroyed) return;
 
-        // Обновляем конфиг, объединяя старый, дефолтный и новый
+        // Update config by merging old, default, and new
         this.config = { ...ParticleEffect.defaultConfig, ...this.config, ...newConfig };
-        console.log('ParticleEffect: Config updated', this.config);
 
-        // Если эффект активен, пересоздаем частицы с новым конфигом
+        // If the effect is active, recreate particles with new config
         if (this.isActive) {
             this._createParticles();
         } else {
-            // Если не активен, просто очистим массив, чтобы при следующем start()
-            // частицы создались с новым конфигом.
-             this.particles = [];
+            // If not active, just clear the array so that on next start()
+            // particles will be created with the new config.
+            this.particles = [];
         }
     }
 
-
     /**
-     * Полностью останавливает эффект, очищает ресурсы и удаляет canvas.
+     * Destroys the particle effect and removes resources
      */
     destroy() {
         if (this.isDestroyed) return;
-        console.log('ParticleEffect: Destroying instance');
+
         this.isDestroyed = true;
-        this.stop(); // Останавливаем анимацию
+        this.stop(); // Stop animation
 
-        // Отключаем наблюдатель за размером
+        // Disconnect the resize observer
         if (this.resizeObserver) {
-            this.resizeObserver.disconnect();
-            this.resizeObserver = null;
-        }
-        if (this._resizeTimeout) {
-             clearTimeout(this._resizeTimeout);
+            try {
+                this.resizeObserver.disconnect();
+            } catch (e) {
+                console.warn('Error disconnecting ResizeObserver:', e);
+            }
         }
 
-
-        // Удаляем canvas из DOM
+        // Remove canvas from DOM
         if (this.canvas && this.canvas.parentNode) {
             this.canvas.parentNode.removeChild(this.canvas);
         }
 
-        // Очищаем ссылки
-        this.particles = [];
+        // Clear references
+        this.resizeObserver = null;
         this.canvas = null;
         this.ctx = null;
-        this.targetElement = null;
-        this.config = null;
+        this.particles = [];
     }
 }
 
-// Экспортируем класс для использования в других модулях
+// Export the class for use in other modules
 export default ParticleEffect;
