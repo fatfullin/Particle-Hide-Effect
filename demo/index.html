@@ -22,14 +22,8 @@
         }
     </style>
     
-    <!-- Подключение библиотеки как будто через CDN (но на самом деле из локального пути) -->
-    <script type="module">
-        // В реальном использовании импорт был бы таким:
-        // import ParticleEffect from 'https://cdn.jsdelivr.net/npm/fatfullin-particle-hide-effect@latest/dist/particle-effect.es.js';
-        // Но для демо используем локальный путь:
-        import ParticleEffect from '../dist/particle-effect.es.js';
-        window.ParticleEffect = ParticleEffect;
-    </script>
+    <!-- Подключение библиотеки напрямую -->
+    <script src="../dist/particle-effect.umd.js"></script>
 </head>
 <body>
 

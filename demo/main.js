@@ -1,5 +1,8 @@
-// Используем глобальный объект ParticleEffect, как будто библиотека загружена через CDN
-// В предыдущей версии был import ParticleEffect from '../dist/particle-effect.es.js';
+// ParticleEffect теперь доступен как глобальный объект из UMD скрипта
+// в предыдущих версиях использовался:
+// import ParticleEffect from '../dist/particle-effect.es.js';
+// или
+// window.ParticleEffect = ParticleEffect;
 
 // --- DOM Элементы ---
 const controlsContainer = document.getElementById('controls-container');
