@@ -2,6 +2,8 @@
 
 A simple JavaScript library to create a particle effect that reveals or hides the text content of a DOM element.
 
+Check out the [live demo](https://fatfullin.github.io/Particle-Hide-Effect/demo) to see the particle effect in action and experiment with different settings.
+
 ## Installation
 
 ```bash
@@ -99,9 +101,7 @@ The `ParticleEffect` constructor accepts an optional configuration object as the
 *   `effect.updateConfig(newConfig)`: Updates the effect's configuration on the fly. Accepts an object with one or more configuration options.
 *   `effect.destroy()`: Removes the canvas, stops the animation loop, and cleans up event listeners.
 
-## Demo
 
-Check out the [live demo](https://fatfullin.github.io/Particle-Hide-Effect/demo) to see the particle effect in action and experiment with different settings.
 
 ## License
 
