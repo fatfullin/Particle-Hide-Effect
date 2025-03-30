@@ -5,13 +5,13 @@ A simple JavaScript library to create a particle effect that reveals or hides th
 ## Installation
 
 ```bash
-npm install particle-hide-effect
+npm install fatfullin-particle-hide-effect
 ```
 
 Or include the UMD build directly in your HTML:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/particle-hide-effect@latest/dist/particle-effect.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fatfullin-particle-hide-effect@latest/dist/particle-effect.umd.js"></script>
 ```
 
 ## Usage
@@ -19,7 +19,7 @@ Or include the UMD build directly in your HTML:
 ### ES Module
 
 ```javascript
-import ParticleEffect from 'particle-hide-effect';
+import ParticleEffect from 'fatfullin-particle-hide-effect';
 
 const element = document.getElementById('your-element-id');
 
@@ -44,7 +44,7 @@ element.addEventListener('click', () => {
 ```html
 <div id="my-element">Click Me</div>
 
-<script src="https://cdn.jsdelivr.net/npm/particle-hide-effect@latest/dist/particle-effect.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fatfullin-particle-hide-effect@latest/dist/particle-effect.umd.js"></script>
 <script>
   const element = document.getElementById('my-element');
   const config = { /* your config */ };

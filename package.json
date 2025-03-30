@@ -1,5 +1,5 @@
 {
-  "name": "particle-hide-effect",
+  "name": "fatfullin-particle-hide-effect",
   "version": "1.0.0",
   "description": "A simple JavaScript library for creating particle effects that can hide or reveal DOM elements",
   "main": "dist/particle-effect.umd.js",
