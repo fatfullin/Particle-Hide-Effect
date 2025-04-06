@@ -88,58 +88,57 @@
             <div class="panel-header">1. По умолчанию (opacity-visibility)</div>
             <div class="content" id="default-panel">
                 <h3>Нажмите для скрытия</h3>
-                <p>Метод: opacity-visibility (по умолчанию)</p>
+                <p>Стандартное автоскрытие (по умолчанию)</p>
             </div>
             <div class="status" id="default-status">Статус: Неактивен</div>
             <button id="default-toggle">Переключить</button>
             <pre>
-autoHideTarget: true,
-targetHideMethod: 'opacity-visibility'
+autoHideTarget: true // по умолчанию
             </pre>
         </div>
 
-        <!-- Panel 2: Opacity only -->
+        <!-- Panel 2: Slow Fade -->
         <div class="panel">
-            <div class="panel-header">2. Только прозрачность</div>
+            <div class="panel-header">2. Медленное затухание</div>
             <div class="content" id="opacity-panel">
                 <h3>Нажмите для скрытия</h3>
-                <p>Метод: opacity</p>
+                <p>Медленное затухание (1 секунда)</p>
             </div>
             <div class="status" id="opacity-status">Статус: Неактивен</div>
             <button id="opacity-toggle">Переключить</button>
             <pre>
 autoHideTarget: true,
-targetHideMethod: 'opacity'
+targetFadeDuration: 1.0
             </pre>
         </div>
 
-        <!-- Panel 3: Visibility only -->
+        <!-- Panel 3: Different timing function -->
         <div class="panel">
-            <div class="panel-header">3. Только visibility</div>
+            <div class="panel-header">3. Функция перехода</div>
             <div class="content" id="visibility-panel">
                 <h3>Нажмите для скрытия</h3>
-                <p>Метод: visibility</p>
+                <p>С другой функцией перехода</p>
             </div>
             <div class="status" id="visibility-status">Статус: Неактивен</div>
             <button id="visibility-toggle">Переключить</button>
             <pre>
 autoHideTarget: true,
-targetHideMethod: 'visibility'
+targetTimingFunction: 'ease-in-out'
             </pre>
         </div>
 
-        <!-- Panel 4: Display none -->
+        <!-- Panel 4: Specific content -->
         <div class="panel">
-            <div class="panel-header">4. Display: none</div>
+            <div class="panel-header">4. Определенный контент</div>
             <div class="content" id="display-panel">
                 <h3>Нажмите для скрытия</h3>
-                <p>Метод: display</p>
+                <p>Скрывается только параграф</p>
             </div>
             <div class="status" id="display-status">Статус: Неактивен</div>
             <button id="display-toggle">Переключить</button>
             <pre>
 autoHideTarget: true,
-targetHideMethod: 'display'
+targetContentSelector: 'p'
             </pre>
         </div>
 
@@ -148,7 +147,7 @@ targetHideMethod: 'display'
             <div class="panel-header">5. Через CSS класс</div>
             <div class="content" id="class-panel">
                 <h3>Нажмите для скрытия</h3>
-                <p>Метод: CSS класс</p>
+                <p>Через пользовательский CSS класс</p>
             </div>
             <div class="status" id="class-status">Статус: Неактивен</div>
             <button id="class-toggle">Переключить</button>
@@ -174,7 +173,7 @@ autoHideTarget: false
     </div>
 
     <!-- Подключаем файл библиотеки напрямую, без ES модулей -->
-    <script src="particle-effect-test-umd.js"></script>
+    <script src="../dist/particle-effect.umd.js"></script>
     
     <script>
         // Utility function to update status
@@ -182,10 +181,11 @@ autoHideTarget: false
             document.getElementById(id).textContent = `Статус: ${active ? 'Активен' : 'Неактивен'}`;
         }
 
-        // 1. Default (opacity-visibility)
+        // 1. Default
         const defaultPanel = document.getElementById('default-panel');
         const defaultEffect = new ParticleEffect(defaultPanel, {
-            autoStart: false
+            autoStart: false,
+            autoHideTarget: true
         });
         defaultPanel.addEventListener('click', () => {
             defaultEffect.toggle();
@@ -196,11 +196,12 @@ autoHideTarget: false
             updateStatus('default-status', defaultEffect.isActive);
         });
 
-        // 2. Opacity only
+        // 2. Slow fade
         const opacityPanel = document.getElementById('opacity-panel');
         const opacityEffect = new ParticleEffect(opacityPanel, {
             autoStart: false,
-            targetHideMethod: 'opacity'
+            autoHideTarget: true,
+            targetFadeDuration: 1.0
         });
         opacityPanel.addEventListener('click', () => {
             opacityEffect.toggle();
@@ -211,11 +212,12 @@ autoHideTarget: false
             updateStatus('opacity-status', opacityEffect.isActive);
         });
 
-        // 3. Visibility only
+        // 3. Different timing function
         const visibilityPanel = document.getElementById('visibility-panel');
         const visibilityEffect = new ParticleEffect(visibilityPanel, {
             autoStart: false,
-            targetHideMethod: 'visibility'
+            autoHideTarget: true,
+            targetTimingFunction: 'ease-in-out'
         });
         visibilityPanel.addEventListener('click', () => {
             visibilityEffect.toggle();
@@ -226,11 +228,12 @@ autoHideTarget: false
             updateStatus('visibility-status', visibilityEffect.isActive);
         });
 
-        // 4. Display none
+        // 4. Specific content
         const displayPanel = document.getElementById('display-panel');
         const displayEffect = new ParticleEffect(displayPanel, {
             autoStart: false,
-            targetHideMethod: 'display'
+            autoHideTarget: true,
+            targetContentSelector: 'p'
         });
         displayPanel.addEventListener('click', () => {
             displayEffect.toggle();
@@ -245,6 +248,7 @@ autoHideTarget: false
         const classPanel = document.getElementById('class-panel');
         const classEffect = new ParticleEffect(classPanel, {
             autoStart: false,
+            autoHideTarget: true,
             targetHideClass: 'hidden-class'
         });
         classPanel.addEventListener('click', () => {
