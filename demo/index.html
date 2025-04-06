@@ -195,18 +195,6 @@
         <h1 class="text-to-cover tertiary-text" id="tertiary-text">Small secret</h1>
         <!-- <canvas class="particle-canvas" id="canvas-tertiary"></canvas> -->
     </div>
-    
-    <!-- Новая секция демонстрации автоскрытия -->
-    <div class="auto-hide-section">
-        <h2>Auto-Hide Feature Demo</h2>
-        <p>Click on the example below to see the auto-hiding functionality:</p>
-        
-        <div class="auto-hide-example" id="auto-hide-demo">
-            <h3>Auto-hiding Content</h3>
-            <p>This text will automatically hide when particle effect is active.</p>
-            <p><small>Click to toggle the effect</small></p>
-        </div>
-    </div>
 
     <!-- Then the config section -->
     <div id="config-section">
@@ -252,19 +240,53 @@ const effectWithAutoHide = new ParticleEffect(element, {
 
 <script src="main.js"></script>
 <script>
-    // Инициализация демонстрации автоскрытия
-    const autoHideDemo = document.getElementById('auto-hide-demo');
-    const autoHideEffect = new ParticleEffect(autoHideDemo, {
-        autoStart: false,
-        autoHideTarget: true,
-        particleDensity: 200,
-        minRadius: 0.5,
-        maxRadius: 1.2,
-        targetFadeDuration: 0.5
-    });
-    
-    autoHideDemo.addEventListener('click', () => {
-        autoHideEffect.toggle();
+    // Обновляем существующие эффекты, чтобы использовать автоскрытие
+    document.addEventListener('DOMContentLoaded', () => {
+        // Получаем доступ к глобальным переменным из main.js
+        if (typeof effectInstances !== 'undefined' && Array.isArray(effectInstances)) {
+            // Удаляем предыдущие эффекты и создаем новые с автоскрытием
+            effectInstances.forEach((instance, index) => {
+                if (instance) {
+                    instance.destroy();
+                }
+                
+                const containers = [
+                    document.getElementById('container-main'),
+                    document.getElementById('container-secondary'),
+                    document.getElementById('container-tertiary')
+                ];
+                
+                if (containers[index]) {
+                    const config = {
+                        // Базовая конфигурация (будет обновлена из UI)
+                        autoStart: false,
+                        // Добавляем автоскрытие
+                        autoHideTarget: true
+                    };
+                    
+                    // Различные настройки для разных контейнеров
+                    if (index === 0) { // Big secret
+                        config.targetFadeDuration = 0.5;
+                    } else if (index === 1) { // Medium secret
+                        config.targetFadeDuration = 0.3;
+                    } else if (index === 2) { // Small secret
+                        config.targetFadeDuration = 0.2;
+                    }
+                    
+                    // Создаем новый эффект
+                    effectInstances[index] = new ParticleEffect(containers[index], config);
+                    console.log(`Re-initialized ParticleEffect ${index + 1} with auto-hide`);
+                    
+                    // Удаляем обработчики событий для класса text-hidden,
+                    // поскольку теперь скрытие обрабатывается внутри библиотеки
+                }
+            });
+            
+            // Обновляем конфигурацию всех эффектов
+            if (typeof updateDemoAndConfigOutput === 'function') {
+                updateDemoAndConfigOutput();
+            }
+        }
     });
 </script>
 </body>

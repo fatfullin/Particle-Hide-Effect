@@ -652,30 +652,16 @@ effectInstances = []; // Clear array just in case
         try {
             const instance = new ParticleEffect(container, {
                 ...currentConfig,
-                autoStart: false // Disable autostart
+                autoStart: false, // Disable autostart
+                autoHideTarget: true // Используем автоскрытие из библиотеки
             });
             effectInstances.push(instance);
             console.log(`ParticleEffect initialized for container ${index + 1}.`);
 
-            // Find the text element inside the container
-            const textElement = container.querySelector('.text-to-cover');
-
             // Add click listener for manual start/stop
             container.addEventListener('click', () => {
-                if (!textElement) return; // If no text, do nothing
-
                 console.log(`Toggling effect for container ${index + 1}`);
-
-                // Logic for hiding/showing text BEFORE toggling the effect
-                if (instance.isActive) {
-                    // If currently active (will be stopped), SHOW text
-                    textElement.classList.remove('text-hidden');
-                } else {
-                    // If currently inactive (will be started), HIDE text
-                    textElement.classList.add('text-hidden');
-                }
-
-                // Toggle the effect itself
+                // Просто переключаем эффект, скрытие контента происходит автоматически
                 instance.toggle();
             });
 
