@@ -345,7 +345,7 @@ function updateSizeControls(changedId, newValue) {
         console.log(`Sliders updated (clamped): minSlider=${minSlider.value}, maxSlider=${maxSlider.value}`);
 
     } finally {
-        isUpdatingSizeControls = false; // Сбрасываем флаг
+        isUpdatingSizeControls = false; // Reset flag
         console.log('isUpdatingSizeControls flag cleared');
     }
 }
@@ -615,7 +615,7 @@ function updateSingleControlPair(baseId, changedId, newValue) {
     }
 }
 
-// --- Инициализация ---
+// --- Initialization ---
 
 // Set initial control values from default config
 Object.keys(ParticleEffect.defaultConfig).forEach(key => {

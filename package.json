@@ -1,7 +1,7 @@
 {
-  "name": "fatfullin-particle-hide-effect",
-  "version": "1.0.3",
-  "description": "A simple JavaScript library for creating particle effects that can hide or reveal DOM elements",
+  "name": "@fatmax/particle-hide-effect",
+  "version": "1.0.0",
+  "description": "A JavaScript library for creating particle effects that automatically hide or reveal DOM elements with customizable animations",
   "main": "dist/particle-effect.umd.js",
   "module": "dist/particle-effect.es.js",
   "exports": {
@@ -27,7 +27,9 @@
     "canvas",
     "javascript",
     "hide",
-    "reveal"
+    "reveal",
+    "transition",
+    "auto-hide"
   ],
   "author": "Fatfullin",
   "license": "MIT",

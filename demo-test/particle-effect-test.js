@@ -162,13 +162,14 @@ class ParticleEffect {
         blackRatioPercent: 50,
         minSemiTransparentOpacity: 0.2,
         maxSemiTransparentOpacity: 0.7,
-        autoStart: true, // Автозапуск эффекта
+        autoStart: true, // Original autoStart option
         
-        // Параметры для скрытия элементов
+        // Новые параметры для скрытия элементов
         autoHideTarget: true,             // Автоматически скрывать целевой элемент при запуске
         targetFadeDuration: 0.3,          // Длительность анимации в секундах
         targetContentSelector: null,      // Селектор для элемента внутри (если null, используется весь targetElement)
-        targetHideClass: null,            // Опционально: CSS класс для скрытия элемента
+        targetHideMethod: 'opacity-visibility', // Метод скрытия: 'opacity', 'visibility', 'display', 'opacity-visibility'
+        targetHideClass: null,            // Альтернативно: имя класса для скрытия элемента
         targetTimingFunction: 'ease'      // Функция времени для анимации
     };
 
@@ -182,8 +183,60 @@ class ParticleEffect {
         // Merge user settings with defaults
         this.config = { ...ParticleEffect.defaultConfig, ...userConfig };
 
-        // --- Setup DOM structure and find what to hide ---
-        this._setupDOM();
+        // --- Create Canvas ---
+        this.canvas = document.createElement('canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.targetElement.style.position = 'relative'; // For canvas positioning
+        this.canvas.style.position = 'absolute';
+        this.canvas.style.top = '0';
+        this.canvas.style.left = '0';
+        this.canvas.style.width = '100%';
+        this.canvas.style.height = '100%';
+        this.canvas.style.pointerEvents = 'none'; // To not interfere with clicks on the element
+        this.targetElement.appendChild(this.canvas);
+
+        // Найти и сохранить ссылку на содержимое, которое будем скрывать
+        if (this.config.targetContentSelector) {
+            this.contentToHide = this.targetElement.querySelector(this.config.targetContentSelector);
+        } else {
+            // Если селектор не задан, скрываем весь targetElement
+            this.contentToHide = this.targetElement;
+        }
+        
+        // Настроить стили для плавного перехода, если включено автоскрытие
+        if (this.config.autoHideTarget && this.contentToHide) {
+            // Сохраним оригинальные стили для восстановления при destroy()
+            this.originalStyles = {
+                transition: this.contentToHide.style.transition,
+                opacity: this.contentToHide.style.opacity,
+                visibility: this.contentToHide.style.visibility,
+                display: this.contentToHide.style.display
+            };
+            
+            // Если используется класс для скрытия
+            if (this.config.targetHideClass) {
+                // Ничего не делаем с инлайн-стилями, будем добавлять/удалять класс
+            } else {
+                // Установить стили для плавного перехода в зависимости от метода скрытия
+                if (this.config.targetHideMethod === 'opacity' || 
+                    this.config.targetHideMethod === 'opacity-visibility') {
+                    this.contentToHide.style.transition = 
+                        `opacity ${this.config.targetFadeDuration}s ${this.config.targetTimingFunction}`;
+                }
+                
+                if (this.config.targetHideMethod === 'visibility' || 
+                    this.config.targetHideMethod === 'opacity-visibility') {
+                    // Добавляем transition для visibility, если нужно
+                    if (this.contentToHide.style.transition) {
+                        this.contentToHide.style.transition += 
+                            `, visibility ${this.config.targetFadeDuration}s ${this.config.targetTimingFunction}`;
+                    } else {
+                        this.contentToHide.style.transition = 
+                            `visibility ${this.config.targetFadeDuration}s ${this.config.targetTimingFunction}`;
+                    }
+                }
+            }
+        }
 
         // --- Initialize state ---
         this.particles = [];
@@ -214,71 +267,6 @@ class ParticleEffect {
         // Auto-start if enabled
         if (this.config.autoStart) {
             this.start();
-        }
-    }
-
-    // Setup DOM structure and find what to hide
-    _setupDOM() {
-        // Find content to hide
-        if (this.config.targetContentSelector) {
-            // Если задан селектор, ищем внутри targetElement
-            this.contentToHide = this.targetElement.querySelector(this.config.targetContentSelector);
-        } else {
-            // Если селектор не задан, используем дочерние элементы targetElement
-            // Создаем контейнер для контента, если его еще нет
-            const contentContainer = document.createElement('div');
-            contentContainer.className = 'particle-effect-content-container';
-            contentContainer.style.position = 'relative';
-            contentContainer.style.width = '100%';
-            contentContainer.style.height = '100%';
-
-            // Перемещаем все дочерние элементы в контейнер
-            while (this.targetElement.firstChild) {
-                contentContainer.appendChild(this.targetElement.firstChild);
-            }
-            
-            this.targetElement.appendChild(contentContainer);
-            this.contentToHide = contentContainer;
-        }
-
-        this.targetElement.style.position = 'relative'; // Для правильного позиционирования
-
-        // --- Create Canvas ---
-        this.canvas = document.createElement('canvas');
-        this.ctx = this.canvas.getContext('2d');
-        this.canvas.style.position = 'absolute';
-        this.canvas.style.top = '0';
-        this.canvas.style.left = '0';
-        this.canvas.style.width = '100%';
-        this.canvas.style.height = '100%';
-        this.canvas.style.pointerEvents = 'none'; // To not interfere with clicks on the element
-        this.canvas.style.zIndex = '1'; // Поверх содержимого
-
-        // Добавляем canvas поверх контента
-        this.targetElement.appendChild(this.canvas);
-        
-        // Настроить стили для плавного перехода, если включено автоскрытие
-        if (this.config.autoHideTarget && this.contentToHide) {
-            // Сохраним оригинальные стили для восстановления при destroy()
-            this.originalStyles = {
-                transition: this.contentToHide.style.transition,
-                opacity: this.contentToHide.style.opacity,
-                visibility: this.contentToHide.style.visibility,
-                zIndex: this.contentToHide.style.zIndex
-            };
-            
-            // Установим z-index для правильного порядка слоев
-            this.contentToHide.style.zIndex = '0';
-            
-            // Если используется класс для скрытия
-            if (this.config.targetHideClass) {
-                // Ничего не делаем с инлайн-стилями, будем добавлять/удалять класс
-            } else {
-                // Установить стили для плавного перехода
-                this.contentToHide.style.transition = 
-                    `opacity ${this.config.targetFadeDuration}s ${this.config.targetTimingFunction}, ` +
-                    `visibility ${this.config.targetFadeDuration}s ${this.config.targetTimingFunction}`;
-            }
         }
     }
 
@@ -355,9 +343,24 @@ class ParticleEffect {
             // Используем класс для скрытия
             this.contentToHide.classList.add(this.config.targetHideClass);
         } else {
-            // Используем метод opacity-visibility
-            this.contentToHide.style.opacity = '0';
-            this.contentToHide.style.visibility = 'hidden';
+            // Используем инлайн-стили в зависимости от выбранного метода
+            switch(this.config.targetHideMethod) {
+                case 'opacity':
+                    this.contentToHide.style.opacity = '0';
+                    break;
+                case 'visibility':
+                    this.contentToHide.style.visibility = 'hidden';
+                    break;
+                case 'display':
+                    // Для display не используем анимацию, просто скрываем
+                    this.contentToHide.style.display = 'none';
+                    break;
+                case 'opacity-visibility':
+                default:
+                    this.contentToHide.style.opacity = '0';
+                    this.contentToHide.style.visibility = 'hidden';
+                    break;
+            }
         }
     }
 
@@ -369,9 +372,24 @@ class ParticleEffect {
             // Используем класс для показа (удаляем класс скрытия)
             this.contentToHide.classList.remove(this.config.targetHideClass);
         } else {
-            // Используем метод opacity-visibility
-            this.contentToHide.style.opacity = '1';
-            this.contentToHide.style.visibility = 'visible';
+            // Используем инлайн-стили в зависимости от выбранного метода
+            switch(this.config.targetHideMethod) {
+                case 'opacity':
+                    this.contentToHide.style.opacity = '1';
+                    break;
+                case 'visibility':
+                    this.contentToHide.style.visibility = 'visible';
+                    break;
+                case 'display':
+                    // Восстанавливаем исходное значение display
+                    this.contentToHide.style.display = this.originalStyles.display || '';
+                    break;
+                case 'opacity-visibility':
+                default:
+                    this.contentToHide.style.opacity = '1';
+                    this.contentToHide.style.visibility = 'visible';
+                    break;
+            }
         }
     }
     
@@ -383,9 +401,6 @@ class ParticleEffect {
     start() {
         if (this.isDestroyed || this.isActive) return;
         this.isActive = true;
-        
-        // Показать canvas (он всегда видим, но когда есть частицы)
-        this.canvas.style.visibility = 'visible';
         
         // Скрыть содержимое
         this._hideContent();
@@ -458,15 +473,28 @@ class ParticleEffect {
                             transition: this.contentToHide.style.transition,
                             opacity: this.contentToHide.style.opacity,
                             visibility: this.contentToHide.style.visibility,
-                            zIndex: this.contentToHide.style.zIndex
+                            display: this.contentToHide.style.display
                         };
                     }
                     
                     // Установить стили для плавного перехода
                     if (!this.config.targetHideClass) {
-                        this.contentToHide.style.transition = 
-                            `opacity ${this.config.targetFadeDuration}s ${this.config.targetTimingFunction}, ` +
-                            `visibility ${this.config.targetFadeDuration}s ${this.config.targetTimingFunction}`;
+                        if (this.config.targetHideMethod === 'opacity' || 
+                            this.config.targetHideMethod === 'opacity-visibility') {
+                            this.contentToHide.style.transition = 
+                                `opacity ${this.config.targetFadeDuration}s ${this.config.targetTimingFunction}`;
+                        }
+                        
+                        if (this.config.targetHideMethod === 'visibility' || 
+                            this.config.targetHideMethod === 'opacity-visibility') {
+                            if (this.contentToHide.style.transition) {
+                                this.contentToHide.style.transition += 
+                                    `, visibility ${this.config.targetFadeDuration}s ${this.config.targetTimingFunction}`;
+                            } else {
+                                this.contentToHide.style.transition = 
+                                    `visibility ${this.config.targetFadeDuration}s ${this.config.targetTimingFunction}`;
+                            }
+                        }
                     }
                     
                     // Скрыть, если эффект активен
@@ -516,7 +544,7 @@ class ParticleEffect {
                 this.contentToHide.style.transition = this.originalStyles.transition || '';
                 this.contentToHide.style.opacity = this.originalStyles.opacity || '';
                 this.contentToHide.style.visibility = this.originalStyles.visibility || '';
-                this.contentToHide.style.zIndex = this.originalStyles.zIndex || '';
+                this.contentToHide.style.display = this.originalStyles.display || '';
             }
         }
 
@@ -537,17 +565,6 @@ class ParticleEffect {
             this.canvas.parentNode.removeChild(this.canvas);
         }
 
-        // Restore original DOM structure if we modified it
-        if (this.contentToHide && this.contentToHide.className === 'particle-effect-content-container' && 
-            this.contentToHide.parentNode === this.targetElement) {
-            // If we created a content container, move all children back to target element
-            while (this.contentToHide.firstChild) {
-                this.targetElement.insertBefore(this.contentToHide.firstChild, this.contentToHide);
-            }
-            // Then remove the empty container
-            this.targetElement.removeChild(this.contentToHide);
-        }
-
         // Clear references
         this.resizeObserver = null;
         this.canvas = null;
@@ -557,4 +574,4 @@ class ParticleEffect {
 }
 
 // Export the class for use in other modules
-export default ParticleEffect;
+export default ParticleEffect; 

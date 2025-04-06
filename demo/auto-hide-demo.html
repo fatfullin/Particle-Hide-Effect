@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Particle Effect Auto-Hide Demo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f7f9fc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            max-width: 1200px;
+        }
+
+        .demo-box {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            width: 350px;
+            height: 200px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .demo-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .demo-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #34495e;
+            pointer-events: none;
+        }
+
+        .demo-content {
+            font-size: 1rem;
+            color: #7f8c8d;
+            line-height: 1.6;
+            pointer-events: none;
+        }
+
+        .custom-hide-class {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.7s ease-in-out, visibility 0.7s ease-in-out;
+        }
+
+        .config-box {
+            margin-top: 40px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            width: 90%;
+            max-width: 800px;
+        }
+
+        code {
+            background-color: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+
+        .fade-in-text {
+            animation: fadeIn 2s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .instruction {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ebf5fb;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Particle Effect Auto-Hide Demo</h1>
+    
+    <div class="instruction">
+        <p>Нажмите на любой блок, чтобы активировать эффект частиц и увидеть автоскрытие содержимого.</p>
+        <p>Библиотека: <code>@fatmax/particle-hide-effect</code></p>
+    </div>
+
+    <div class="container">
+        <div class="demo-box" id="demo1">
+            <div class="demo-title">Стандартное автоскрытие</div>
+            <div class="demo-content">
+                Используется стандартное автоскрытие с плавным исчезанием содержимого через opacity и visibility.
+            </div>
+        </div>
+
+        <div class="demo-box" id="demo2">
+            <div class="demo-title">Медленное затухание</div>
+            <div class="demo-content">
+                Используется медленное затухание (1 секунда) для плавного исчезновения с ease-in-out эффектом.
+            </div>
+        </div>
+
+        <div class="demo-box" id="demo3">
+            <div class="demo-title">Пользовательский CSS класс</div>
+            <div class="demo-content">
+                Использует пользовательский CSS класс для управления скрытием, позволяя полную настройку анимации.
+            </div>
+        </div>
+    </div>
+
+    <div class="config-box fade-in-text">
+        <h3>Код для каждого примера:</h3>
+        <h4>Стандартное автоскрытие:</h4>
+        <code>
+// npm install @fatmax/particle-hide-effect
+import ParticleEffect from '@fatmax/particle-hide-effect';
+
+const effect1 = new ParticleEffect(document.getElementById('demo1'), {
+    autoHideTarget: true, // включено по умолчанию
+    particleDensity: 250
+});</code>
+
+        <h4>Медленное затухание:</h4>
+        <code>
+const effect2 = new ParticleEffect(document.getElementById('demo2'), {
+    autoHideTarget: true,
+    targetFadeDuration: 1.0, // 1 секунда вместо стандартных 0.3
+    targetTimingFunction: 'ease-in-out',
+    particleDensity: 250
+});</code>
+
+        <h4>Пользовательский CSS класс:</h4>
+        <code>
+const effect3 = new ParticleEffect(document.getElementById('demo3'), {
+    autoHideTarget: true,
+    targetHideClass: 'custom-hide-class', // используем свой CSS класс
+    particleDensity: 250
+});</code>
+    </div>
+
+    <script src="../dist/particle-effect.umd.js"></script>
+    <script>
+        // Стандартное автоскрытие
+        const effect1 = new ParticleEffect(document.getElementById('demo1'), {
+            autoHideTarget: true, // включено по умолчанию
+            autoStart: false,
+            particleDensity: 250
+        });
+
+        // Медленное затухание
+        const effect2 = new ParticleEffect(document.getElementById('demo2'), {
+            autoHideTarget: true,
+            targetFadeDuration: 1.0, // 1 секунда вместо стандартных 0.3
+            targetTimingFunction: 'ease-in-out',
+            autoStart: false,
+            particleDensity: 250
+        });
+
+        // Пользовательский CSS класс
+        const effect3 = new ParticleEffect(document.getElementById('demo3'), {
+            autoHideTarget: true,
+            targetHideClass: 'custom-hide-class', // используем свой CSS класс
+            autoStart: false,
+            particleDensity: 250
+        });
+
+        // Добавляем обработчики событий для запуска эффектов по клику
+        document.getElementById('demo1').addEventListener('click', () => {
+            effect1.toggle();
+        });
+
+        document.getElementById('demo2').addEventListener('click', () => {
+            effect2.toggle();
+        });
+
+        document.getElementById('demo3').addEventListener('click', () => {
+            effect3.toggle();
+        });
+    </script>
+</body>
+</html> 

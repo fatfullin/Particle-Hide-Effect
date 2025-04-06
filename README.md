@@ -1,19 +1,19 @@
 # Particle Hide Effect
 
-A simple JavaScript library to create a particle effect that reveals or hides the text content of a DOM element.
+A JavaScript library for creating particle effects that automatically hide or reveal DOM elements with customizable animations.
 
 Check out the [live demo](https://fatfullin.github.io/Particle-Hide-Effect/demo) to see the particle effect in action and experiment with different settings.
 
 ## Installation
 
 ```bash
-npm install fatfullin-particle-hide-effect
+npm install @fatmax/particle-hide-effect
 ```
 
 Or include the UMD build directly in your HTML:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/fatfullin-particle-hide-effect@latest/dist/particle-effect.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fatmax/particle-hide-effect@latest/dist/particle-effect.umd.js"></script>
 ```
 
 ## Usage
@@ -21,7 +21,7 @@ Or include the UMD build directly in your HTML:
 ### ES Module
 
 ```javascript
-import ParticleEffect from 'fatfullin-particle-hide-effect';
+import ParticleEffect from '@fatmax/particle-hide-effect';
 
 const element = document.getElementById('your-element-id');
 
@@ -46,7 +46,7 @@ element.addEventListener('click', () => {
 ```html
 <div id="my-element">Click Me</div>
 
-<script src="https://cdn.jsdelivr.net/npm/fatfullin-particle-hide-effect@latest/dist/particle-effect.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fatmax/particle-hide-effect@latest/dist/particle-effect.umd.js"></script>
 <script>
   const element = document.getElementById('my-element');
   const config = { /* your config */ };
@@ -78,9 +78,18 @@ The `ParticleEffect` constructor accepts an optional configuration object as the
   maxSemiTransparentOpacity: 0.7, // Max opacity for semi-transparent particles
   edgeFadePercent: 15,         // Edge fade zone as a % of the container's smaller dimension
   autoStart: true,             // Start the effect immediately on creation
-  particleColor: 'rgba(30, 30, 30, 0.7)' // Base color for the particles
+  particleColor: 'rgba(30, 30, 30, 0.7)', // Base color for the particles
+  
+  // Content hiding options
+  autoHideTarget: true,        // Automatically hide content when effect starts
+  targetFadeDuration: 0.3,     // Duration of content fade animation in seconds
+  targetContentSelector: null, // CSS selector for content to hide (null = entire element)
+  targetHideClass: null,       // CSS class to apply for hiding (overrides default behavior)
+  targetTimingFunction: 'ease' // CSS timing function for animations
 }
 ```
+
+### Particle Appearance Options
 
 *   **particleDensity**: Controls how many particles are generated relative to the element's area.
 *   **minRadius / maxRadius**: Define the size range for particles.
@@ -93,6 +102,32 @@ The `ParticleEffect` constructor accepts an optional configuration object as the
 *   **autoStart**: If `true`, the effect starts automatically when the `ParticleEffect` object is created.
 *   **particleColor**: Base color of the particles in rgba format.
 
+### Content Hiding Options
+
+*   **autoHideTarget**: Automatically hide the target element's content when the effect is active.
+*   **targetFadeDuration**: Duration of the fade animation for hiding/showing content.
+*   **targetContentSelector**: CSS selector for targeting a specific child element to hide (if null, manages all content).
+*   **targetHideClass**: Optional CSS class to use for hiding content instead of inline styles.
+*   **targetTimingFunction**: CSS timing function for the fade animation ('ease', 'linear', etc).
+
+#### Using a Custom CSS Class
+
+Instead of using the built-in hiding mechanism, you can define your own CSS class:
+
+```css
+.my-hide-class {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+```
+
+```javascript
+const effect = new ParticleEffect(element, {
+  targetHideClass: 'my-hide-class'
+});
+```
+
 ## Methods
 
 *   `effect.start()`: Starts the particle effect and hides the text.
@@ -100,8 +135,6 @@ The `ParticleEffect` constructor accepts an optional configuration object as the
 *   `effect.toggle()`: Toggles the effect between started and stopped states.
 *   `effect.updateConfig(newConfig)`: Updates the effect's configuration on the fly. Accepts an object with one or more configuration options.
 *   `effect.destroy()`: Removes the canvas, stops the animation loop, and cleans up event listeners.
-
-
 
 ## License
 
