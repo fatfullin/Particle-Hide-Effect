@@ -644,24 +644,35 @@ Object.keys(ParticleEffect.defaultConfig).forEach(key => {
 
 // Create effect instances for all demo containers
 effectInstances = []; // Clear array just in case
-// Removed getCurrentConfigFromControls() from here, as it's called in updateDemoAndConfigOutput()
-// currentConfig = getCurrentConfigFromControls(); 
+// Get current config from UI controls
+currentConfig = getCurrentConfigFromControls(); 
 
 [demoContainer, demoContainerSecondary, demoContainerTertiary].forEach((container, index) => {
     if (container) {
         try {
-            const instance = new ParticleEffect(container, {
+            // Создаем конфигурацию с автоскрытием
+            const effectConfig = {
                 ...currentConfig,
                 autoStart: false, // Disable autostart
-                autoHideTarget: true // Используем автоскрытие из библиотеки
-            });
+                autoHideTarget: true // Включаем автоскрытие
+            };
+
+            // Разные длительности анимации для разных контейнеров
+            if (index === 0) { // Big secret
+                effectConfig.targetFadeDuration = 0.5;
+            } else if (index === 1) { // Medium secret
+                effectConfig.targetFadeDuration = 0.3;
+            } else if (index === 2) { // Small secret
+                effectConfig.targetFadeDuration = 0.2;
+            }
+
+            const instance = new ParticleEffect(container, effectConfig);
             effectInstances.push(instance);
-            console.log(`ParticleEffect initialized for container ${index + 1}.`);
+            console.log(`ParticleEffect initialized for container ${index + 1} with auto-hide.`);
 
             // Add click listener for manual start/stop
             container.addEventListener('click', () => {
                 console.log(`Toggling effect for container ${index + 1}`);
-                // Просто переключаем эффект, скрытие контента происходит автоматически
                 instance.toggle();
             });
 
