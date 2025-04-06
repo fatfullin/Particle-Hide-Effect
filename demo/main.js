@@ -835,4 +835,36 @@ copyButton.addEventListener('click', () => {
     copyToClipboard(configOutput.textContent);
 });
 
-console.log('Demo script initialized.'); 
+console.log('Demo script initialized.');
+
+// Функция для обновления конфигурации и отображения в блоке с кодом
+function updateConfig() {
+    const config = {
+        particleDensity: parseFloat(document.getElementById('particleDensity').value),
+        minRadius: parseFloat(document.getElementById('minParticleSize').value),
+        maxRadius: parseFloat(document.getElementById('particleSize').value),
+        minLifetimeSeconds: parseFloat(document.getElementById('minLifetime').value),
+        maxLifetimeSeconds: parseFloat(document.getElementById('maxLifetime').value),
+        fadeInDurationSeconds: parseFloat(document.getElementById('fadeInDuration').value),
+        fadeOutDurationSeconds: parseFloat(document.getElementById('fadeOutDuration').value),
+        blackRatioPercent: parseFloat(document.getElementById('blackRatio').value),
+        minSemiTransparentOpacity: parseFloat(document.getElementById('minRandomOpacity').value),
+        maxSemiTransparentOpacity: parseFloat(document.getElementById('maxRandomOpacity').value),
+        minSpeed: parseFloat(document.getElementById('minSpeed').value),
+        maxSpeed: parseFloat(document.getElementById('maxSpeed').value),
+        edgeFadePercent: parseFloat(document.getElementById('edgeFadePercent').value),
+        // Добавляем параметры автоскрытия с дефолтными значениями (но в комментариях)
+        // autoHideTarget: true,
+        // targetFadeDuration: 0.3,
+        // targetTimingFunction: 'ease'
+    };
+
+    // Форматирование конфигурации для отображения
+    const formattedConfig = JSON.stringify(config, null, 2);
+    document.getElementById('config-output').textContent = formattedConfig;
+    
+    // Применение обновленной конфигурации к существующим инстансам
+    if (mainEffect) mainEffect.updateConfig(config);
+    if (secondaryEffect) secondaryEffect.updateConfig(config);
+    if (tertiaryEffect) tertiaryEffect.updateConfig(config);
+} 

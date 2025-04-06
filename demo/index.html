@@ -20,6 +20,30 @@
         .github-link:hover {
             color: #666;
         }
+        
+        /* Стили для демонстрации автоскрытия */
+        .auto-hide-section {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #4a90e2;
+        }
+        
+        .auto-hide-example {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .auto-hide-example:hover {
+            transform: translateY(-2px);
+        }
     </style>
     
     <!-- Direct library connection -->
@@ -171,6 +195,18 @@
         <h1 class="text-to-cover tertiary-text" id="tertiary-text">Small secret</h1>
         <!-- <canvas class="particle-canvas" id="canvas-tertiary"></canvas> -->
     </div>
+    
+    <!-- Новая секция демонстрации автоскрытия -->
+    <div class="auto-hide-section">
+        <h2>Auto-Hide Feature Demo</h2>
+        <p>Click on the example below to see the auto-hiding functionality:</p>
+        
+        <div class="auto-hide-example" id="auto-hide-demo">
+            <h3>Auto-hiding Content</h3>
+            <p>This text will automatically hide when particle effect is active.</p>
+            <p><small>Click to toggle the effect</small></p>
+        </div>
+    </div>
 
     <!-- Then the config section -->
     <div id="config-section">
@@ -182,15 +218,26 @@
         <p id="copy-status" style="display: none; color: green; margin-left: 10px;">Copied!</p>
         <h3>Usage example:</h3>
         <pre><code>// Option 1: Install via npm
-import ParticleEffect from 'fatfullin-particle-hide-effect'; 
+import ParticleEffect from '@fatmax/particle-hide-effect'; 
 
 // Option 2: Include via CDN
-// &lt;script src="https://cdn.jsdelivr.net/npm/fatfullin-particle-hide-effect@latest/dist/particle-effect.umd.js"&gt;&lt;/script&gt;
+// &lt;script src="https://cdn.jsdelivr.net/npm/@fatmax/particle-hide-effect@latest/dist/particle-effect.umd.js"&gt;&lt;/script&gt;
 
 const element = document.getElementById('your-element-id');
 const config = /* Paste the copied config here */ ;
 
+// Basic usage
 const effect = new ParticleEffect(element, config);
+
+// With auto-hiding (new feature)
+const effectWithAutoHide = new ParticleEffect(element, {
+  ...config,
+  autoHideTarget: true,            // Enable auto-hiding (default: true)
+  targetFadeDuration: 0.3,         // Duration of fade animation in seconds
+  targetContentSelector: null,     // CSS selector for specific content (null = all content)
+  targetHideClass: null,           // Custom CSS class for hiding (null = use inline styles)
+  targetTimingFunction: 'ease'     // CSS timing function
+});
 
 // Controls:
 // effect.start();
@@ -204,5 +251,21 @@ const effect = new ParticleEffect(element, config);
 <!-- End of new containers -->
 
 <script src="main.js"></script>
+<script>
+    // Инициализация демонстрации автоскрытия
+    const autoHideDemo = document.getElementById('auto-hide-demo');
+    const autoHideEffect = new ParticleEffect(autoHideDemo, {
+        autoStart: false,
+        autoHideTarget: true,
+        particleDensity: 200,
+        minRadius: 0.5,
+        maxRadius: 1.2,
+        targetFadeDuration: 0.5
+    });
+    
+    autoHideDemo.addEventListener('click', () => {
+        autoHideEffect.toggle();
+    });
+</script>
 </body>
 </html>
