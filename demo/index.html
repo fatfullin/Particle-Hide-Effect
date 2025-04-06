@@ -20,30 +20,6 @@
         .github-link:hover {
             color: #666;
         }
-        
-        /* Стили для демонстрации автоскрытия */
-        .auto-hide-section {
-            margin-top: 40px;
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #4a90e2;
-        }
-        
-        .auto-hide-example {
-            margin-top: 20px;
-            padding: 20px;
-            background-color: white;
-            border-radius: 6px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        
-        .auto-hide-example:hover {
-            transform: translateY(-2px);
-        }
     </style>
     
     <!-- Direct library connection -->
@@ -221,7 +197,7 @@ const effect = new ParticleEffect(element, config);
 const effectWithAutoHide = new ParticleEffect(element, {
   ...config,
   autoHideTarget: true,            // Enable auto-hiding (default: true)
-  targetFadeDuration: 0.3,         // Duration of fade animation in seconds
+  targetFadeDuration: 0.1,         // Duration of fade animation in seconds (default: 0.3)
   targetContentSelector: null,     // CSS selector for specific content (null = all content)
   targetHideClass: null,           // Custom CSS class for hiding (null = use inline styles)
   targetTimingFunction: 'ease'     // CSS timing function

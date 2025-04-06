@@ -654,17 +654,9 @@ currentConfig = getCurrentConfigFromControls();
             const effectConfig = {
                 ...currentConfig,
                 autoStart: false, // Disable autostart
-                autoHideTarget: true // Включаем автоскрытие
+                autoHideTarget: true, // Включаем автоскрытие
+                targetFadeDuration: 0.1 // Одинаковая скорость скрытия 0.1 секунды
             };
-
-            // Разные длительности анимации для разных контейнеров
-            if (index === 0) { // Big secret
-                effectConfig.targetFadeDuration = 0.5;
-            } else if (index === 1) { // Medium secret
-                effectConfig.targetFadeDuration = 0.3;
-            } else if (index === 2) { // Small secret
-                effectConfig.targetFadeDuration = 0.2;
-            }
 
             const instance = new ParticleEffect(container, effectConfig);
             effectInstances.push(instance);
